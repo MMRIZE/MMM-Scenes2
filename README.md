@@ -9,26 +9,26 @@ MagicMirror module to change screen scenes by time and order with **ANIMATION EF
 ## Demo
 [![MMM-Scenes2 Demo](https://img.youtube.com/vi/VgL6rIedXqI/maxresdefault.jpg) Click To Play](https://www.youtube.com/watch?v=VgL6rIedXqI)
 Click it to see the DEMO.
-It's configuration file is in `/examples/config.js.example`
+Its configuration file is in `/examples/config.js.example`
 
 ## Successor of `MMM-Scenes`
-Since MM 2.25, a new feature `animateCSS` is introduced into the MagicMirror.
+Since MM 2.25, a new feature, `animateCSS` is introduced into the MagicMirror.
 
-By this update, my previous `MMM-Scenes` would be obsoleted. So I remake a new module for MM 2.25
-- The update can provide more number of effects now. ( without my effort. :D )
-- I guess custom animation is rarely used, and most use-cases would be covered by this update. So I decide to drop it.
-- I redesign structure more simply and intuitively. (`role` is introduced.)
+With this update, my previous `MMM-Scenes` would be obsoleted. So I remade a new module for MM 2.25
+- The update can provide more effects now. ( without my effort. :D )
+- custom animation is rarely used, and this update would cover most use cases. So I decided to drop it.
+- I redesigned the structure more simply and intuitively. (`role` is introduced.)
 
 ## Concept
 The scenario of the MM screen is made up of a series of scenes. Each module has its role in its appearance scenes to enter and exit by design.
 
-When a scene begins, all modules whose roles end, will be expelled, and all modules that have the parts in that scene will be admitted.
+When a scene begins, all modules whose roles end will be expelled, and all modules with the parts in that scene will be admitted.
 
 As described in the scenario, your MM screen will play a drama with modules.
 
 
 ## Features
-- control show/hide modules by assigning role names into the module's class
+- control show/hide modules by assigning role names to the module's class
 - various animations for modules exit/enter
 - control scenes by notification and WebURL endpoints.
 - Loop control
@@ -43,9 +43,9 @@ npm install
 ```
 
 ## Configuration
-> Don't worry, not so difficult as it looks.
-> You can find a real-world example in `examples` directory.
-### An simplest example;
+> Don't worry, it's not as difficult as it looks.
+> You can find a real-world example in the `examples` directory.
+### The simplest example;
 ```js
 {
   module: "clock",
@@ -73,7 +73,7 @@ npm install
 }
 
 ```
-> This `scenario` has 2 scnes. At the first scene, `"role1"` and `"role2"` module(s) will exit from the scene with default animation. Then `"role3"` and `"role4"` module(s) will enter into the scene. After some life time, the second scene will start. `"role3"` module(s) will be disappeared and `"role_final"` scene will be revealed. (`"role4"` will remain at the second scene.) And whole scenario will repeat again.
+> This `scenario` has 2 scenes. At the first scene, `"role1"` and `"role2"` module(s) will exit from the scene with default animation. Then `"role3"` and `"role4"` module(s) will enter into the scene. After some lifetime, the second scene will start. `"role3"` module(s) will be disappeared and `"role_final"` scene will be revealed. (`"role4"` will remain at the second scene.) And the whole scenario will repeat.
 
 > In other words, the `clock` module will exit from the first scene as `"role1"` and will enter into the second scene as `"role_final"`.
 
@@ -81,13 +81,13 @@ npm install
 ### Options
 ```js
 config: {
-  scenario: [ ... ], // Array of scene objects. This is the only option MUST-REQUIRED. You should fulfill this option in your configuration.
+  scenario: [ ... ], // Array of scene objects. This is the only option MUST-REQUIRED. You should fulfil this option in your configuration.
 
-  // Belows are omittable, you don't have to describe all these options in your config.
+  //Below are omittable. You don't have to describe all these options in your config.
   life: 1000 * 60, // default life of each scene
   activeIndicator: '■', // default indicator of current scene
   inactiveIndicator: '□', // default indicator of other scenes inactive
-  // You can ignore belows if you are not an expert.
+  // You can ignore the belows if you are not an expert.
   lockString: 'mmm-scenes2', // lockString for hide mechanism
   defaultEnter: { animation, duration, gap }, // convenient definition of default options for `enter`
   defaultExit: { animation, duration, gap }, // convenient definition of default options for `exit`
@@ -96,17 +96,17 @@ config: {
 ```
 |**property**|**default**|**description**|
 |---|---|---|
-|`scenario`| [] | **REQUIRED** The order-set of scenes. You SHOULD set scene definition (object) as the items of this property.|
-|`life`| 1000 * 60 | (ms) The life of the each scene after all roles are appeared. After this time, the next scene would start. <br> If set as `0`, the scene would be paused unless external control(notification, telegram, ...) happens.|
+|`scenario`| [] | **REQUIRED** The order-set of scenes. You SHOULD set the scene definition (object) as the items of this property.|
+|`life`| 1000 * 60 | (ms) The life of each scene after all roles are appeared. After this time, the next scene would start. <br> If set as `0`, the scene would be paused unless external control(notification, telegram, ...) happens.|
 |`activeIndicator`|'■'| Default indicator of current active scene. You can reassign it in each scene object. |
-|`inactiveIndicator`|'□'| Default indicator of other inactive scenes. This could be reassigned also in each scene object. |
+|`inactiveIndicator`|'□'| Default indicator of other inactive scenes. This could also be reassigned in each scene object. |
 |`lockString`|'mmm-scenes2'| Just leave it if you don't know what this is for. |
 |`defaultEnter`| { animation, duration, gap } | Convenient definition of default options for `enter`. I'll explain later. |
 |`defaultExit`| { animation, duration, gap } | Convenient definition of default options for `exit`. I'll explain later. |
 
 
 ### `scene` Object in `scenario`
-`scenario` would have some series of `scene` objects. Each object would have these structure.
+`scenario` would have some series of `scene` objects. Each object would have these structures.
 ```js
 scenario: [
   {
@@ -120,10 +120,10 @@ scenario: [
   // next scenes.
 ]
 ```
-- When you don't assign `name` by yourself, `scene_N`(scene_0, scene_1, ...) would be assigned automatically. This name would be used for external control, so it would be better to avoid `prev`, `next`, `pause`, `resume`, `play` as a scene name.
+- When you don't assign `name` by yourself, `scene_N`(scene_0, scene_1, ...) would be set automatically. This name would be used for external control, so it would be better to avoid `prev`, `next`, `pause`, `resume`, `play` as a scene name.
 - `life`, `activeIndicator`, `inactiveIndicator` are defined in global configuration, but they could be reassigned in the specific `scene` object by your needs.
-- When `life` would be set as `0`, this scene would stop until external command arrives. (e.g. TelegramBot command). You can set this value as `0` on the last scene to play scenario only once.
-- `enter` and `exit` are most important fields on `scene` object. See below.
+- When `life` is set as `0`, this scene would stop until an external command arrives. (e.g. TelegramBot command). You can set this value as `0` on the last scene to play the scenario only once.
+- `enter` and `exit` are the most important fields on `scene` object. See below.
 ### `enter/exit` Objects in `scene`
 ```js
 scenario: [
@@ -156,16 +156,16 @@ scenario: [
   // ... more
 ],
 ```
-Each `enter` and `exit` could have list of `role`. `role` could be the name which you assigned in `classes` of modules, or the object which has definition of the role, or mix of name and objects.
+Each `enter` and `exit` could have a list of roles. `role` could be the name which you assigned in `classes` of modules, or the object which has a definition of the role, or a mix of names and objects.
 
 When you don't need to order different behaviours to the specific roles in the scene, the names are enough to direct which module will enter/exit.
 
 - `role`: the name of role-player module(s). 
-- `animation`: the name of animation. At this moment, the possible animations are defined [here](https://github.com/MichMich/MagicMirror/blob/master/js/animateCSS.js). Or see [this](https://animate.style/)
+- `animation`: the name of animation. Currently, the possible animations are defined [here](https://github.com/MichMich/MagicMirror/blob/master/js/animateCSS.js). Or see [this](https://animate.style/)
 - `duration`: Speed of animation
-- `gap`: Each module of this role start its transition sequentially with this delay. If set as 0, all modules of this role start their transition simultaneously.
+- `gap`: Each role module transitions sequentially with this delay. If set as 0, all modules of this role start their transition simultaneously.
 
-For your convenience, You can define `defaultEnter` and `defaultExit` for common setting of all roles unless each value is reassigned in the specific scene.
+For your convenience, You can define `defaultEnter` and `defaultExit` for the common setting of all roles unless each value is reassigned in the specific scene.
 ```js
 config: {
   defaultEnter: {
@@ -184,9 +184,9 @@ config: {
 ```
 
 ## External Controls
-> Some syntax was changed from `MMM-Scenes`. Check it carefully if you are the user of the previous module.
+> Some syntax was changed from `MMM-Scenes`. Check it carefully if you are a user of the previous module.
 ### Incoming notifications
-- Each incoming notification could have a `callback` function as a member of the payload. It will be called when your notification requesting is done.
+- Each incoming notification could have a `callback` function as a member of the payload. It will be called when your notification request is done.
 ```js
 this.sendNotification('SCENE_NEXT', {
   callback: (result) => { console.log(result.status) }
@@ -211,21 +211,21 @@ Pause at current scene until another command comming.
 
 #### `SCENES_RESUME`, payload: { callback }
 Resume the scene. The remaining life at pause would be applied with this command. 
-You can also resume with other commands(e.g. `SCENES_NEXT`). In that case, the remaining life would be ignored and the scene would play instantly.
+You can also resume with other commands(e.g. `SCENES_NEXT`). In that case, the remaining life would be ignored, and the scene would play instantly.
 
 #### `SCENES_CURRENT`, payload: { callback }
-Get information of current scene.
+Get information on the current scene.
 
 #### `SCENES_PLAY`, payload: { callback, scene }
 Play a specific scene.
-`scene` could be a name or an index of a scene in the scenraio. If omitted, current scene would be applied.
+`scene` could be a name or an index of a scene in the scenario. If omitted, the current scene would be applied.
 
 ### Outgoing Notification
 #### `SCENES_CHANGED`, payload: { info }
 When scenes are changed, this notification will be emitted.
 
 ### WebAPI Endpoint
-You can access MM url to control this module from outside of MM. e.g.) IFTTT.
+You can access MM URL to control this module from outside of MM. e.g.) IFTTT.
 ```
 http://magicmirror.domain/scenes/pause
 http://magicmirror.domain/scenes/resume
@@ -252,11 +252,11 @@ You can assign indicators globally or scene-specifically.
 config: {
   activeIndicator: '■',
   inactiveIndicator: '□',
-  scenarioL: [ ... ],
+  scenario: [ ... ],
   ...
 }
 ```
-If you have 4 scenes in the scenario, the indicator will be shown like `□ ■ □ □`(the second scene is active).
+If you have 4 scenes in the scenario, the indicator will be shown as `□ ■ □ □`(the second scene is active).
 
 ```js
 config: {
@@ -274,7 +274,7 @@ config: {
 Like this, you can reassign indicators for specific scenes. In this case, you can see `❶ □ □ □` or `① ■ □ □`.
 
 
-You can decorate the indicators with CSS in your custom.css; The structure of HTML created will be like this
+You can decorate the indicators with CSS in your `custom.css`; The structure of HTML created will be like this
 ```html
 <div class="scenes_indicator">
   <span class="scenes_indicator_scene index_0 inactive first">□</span>
@@ -296,12 +296,12 @@ You can decorate its look like this;
 }
 ```
 
-One more thing; You can change the scene by clicking/touching the indicator if your MM supports click/touch.
+One more thing: You can change the scene by clicking/touching the indicator if your MM supports click/touch.
 
 ## Tips & ETC
-- I dropped out some features of `MMM-Scenes` like `customized animation` or somethings in this module. If you REALLY need to implement it again, tell me. I'll consider.
-- If `life` of scene is set as `0`, that scene will not be forwarded to the next scene. You can use this feature to make control looping or some hidden scenes for specific purpose.
-- RPI3 or older/weaker SBC doesn't have enough power to handle the animation. In that case, just use animation default or avoid serious effects.
+- I dropped out some features of `MMM-Scenes` like `customized animation` or some things in this module. If you need to implement it again, feel free to tell me. I'll consider it.
+- If the `life` of a scene is set as `0`, that scene will not be forwarded to the next scene. You can use this feature to make control looping or some hidden scenes for specific purposes.
+- RPI3 or older/weaker SBC doesn't have enough power to handle the animation. In that case, use animation default or avoid serious effects.
 
 
 ## History
