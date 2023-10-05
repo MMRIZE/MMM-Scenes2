@@ -7,7 +7,7 @@
 MagicMirror module to change screen scenes by time and order with **ANIMATION EFFECT**.
 
 ## Demo
-[![MMM-Scenes2 Demo](https://img.youtube.com/vi/B0TjyJIIWLA/maxresdefault.jpg) Click To Play](https://www.youtube.com/watch?v=B0TjyJIIWLA)
+[![MMM-Scenes2 Demo](https://img.youtube.com/vi/VgL6rIedXqI/maxresdefault.jpg) Click To Play](https://www.youtube.com/watch?v=VgL6rIedXqI)
 Click it to see the DEMO.
 It's configuration file is in `/examples/config.js.example`
 
