@@ -1,0 +1,14 @@
+{
+  "name": "mmm-scenes2",
+  "version": "1.0.0",
+  "description": "The successor of MMM-Scnese since MM 2.25",
+  "main": "MMM-Scenes2.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "eouia0819@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.2"
+  }
+}
