@@ -92,16 +92,6 @@ class Scenes {
       const roles = scene.exit || []
       return new Promise(async (resolve, reject) => {
         if (roles.length < 1) resolve()
-        /*
-        const maxDuration = roles.reduce((max, role) => {
-          return Math.max(max, role.duration)
-        }, 0) * 2
-        const timeout = new Promise((done, rej) => {
-          setTimeout(() => {
-            done('by timeout')
-          }, maxDuration)
-        })
-        */
         for (const role of roles) {
           const modules = MM.getModules().withClass(role.role).filter(module => !module.hidden)
           for (const module of modules) {
@@ -134,16 +124,6 @@ class Scenes {
 
       return new Promise(async (resolve, reject) => {
         if (roles.length < 1) resolve()
-        /*
-        const maxDuration = roles.reduce((max, role) => {
-          return Math.max(max, role.duration)
-        }, 0) + (role.gap * roles.length)
-        const timeout = new Promise((done, rej) => {
-          setTimeout(() => {
-            done('by timeout')
-          }, maxDuration)
-        })
-        */
         for (const role of roles) {
           const modules = MM.getModules().withClass(role.role).filter(module => module.hidden)
           for (const module of modules) {
@@ -211,6 +191,7 @@ class Scenes {
   async resume() {
     if (this.#pausedRemaining > 0) {
       this.#timerStarted = new Date()
+      clearTimeout(this.#timer)
       this.#timer = setTimeout(() => {
         this.next()
       }, this.#pausedRemaining)

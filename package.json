@@ -1,6 +1,6 @@
 {
   "name": "mmm-scenes2",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The successor of MMM-Scnese since MM 2.25",
   "main": "MMM-Scenes2.js",
   "scripts": {
