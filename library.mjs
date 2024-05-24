@@ -161,6 +161,7 @@ class Scenes {
       this.#timer = null
       this.#timerStarted = new Date()
       this.#timer = setTimeout(() => {
+        clearTimeout(this.#timer)
         this.next()
       }, scene.life)
     }
@@ -193,6 +194,7 @@ class Scenes {
       this.#timerStarted = new Date()
       clearTimeout(this.#timer)
       this.#timer = setTimeout(() => {
+        clearTimeout(this.#timer)
         this.next()
       }, this.#pausedRemaining)
     }
