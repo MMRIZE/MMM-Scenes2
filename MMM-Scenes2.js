@@ -1,3 +1,5 @@
+/* global Module Log */
+
 Module.register('MMM-Scenes2', {
   defaults: {
     scenario: [],
@@ -97,7 +99,7 @@ Module.register('MMM-Scenes2', {
               lockString: this.config.lockString,
             },
             updator: () => {
-              this.updateDom(250)
+              this.updateDom(0)
               this.sendNotification('SCENES_CHANGED', this.scenario.current())
             }
           })
@@ -157,7 +159,7 @@ Module.register('MMM-Scenes2', {
     return dom
   },
 
-  notificationReceived: function (notification, payload, sender) {
+  notificationReceived: function (notification, payload) {
     const availableCommand = [
       'SCENES_PLAY',
       'SCENES_NEXT',

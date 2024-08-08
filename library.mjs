@@ -1,7 +1,9 @@
+/* global Log MM */
+
+
 function asleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
-
 
 class Scenes {
   #scenario = []
@@ -47,8 +49,11 @@ class Scenes {
         enter,
         exit,
         life: scene.life ?? defaults.life,
+        next: (scene.next === false) ? false : (scene.next === 0) ? 0 : (scene.next || null),
+        previous: (scene.previous === false) ? false : (scene.previous === 0) ? 0 : (scene.previous || null),
       }
     })
+    console.log(this.#scenario)
   }
 
   get length() {
@@ -90,20 +95,21 @@ class Scenes {
     const exitAll = function () {
       const exitDone = []
       const roles = scene.exit || []
-      return new Promise(async (resolve, reject) => {
+      return new Promise((resolve) => {
         if (roles.length < 1) resolve()
         for (const role of roles) {
           const modules = MM.getModules().withClass(role.role).filter(module => !module.hidden)
           for (const module of modules) {
-            exitDone.push(new Promise(async (done, rej) => {
-              MM.hideModule(module, role.duration, () => {
+            exitDone.push(new Promise((done) => {
+              MM.hideModule(module, role.duration, async () => {
+                await asleep(role.gap)
                 done(module.name)
               }, {
                 lockString,
                 animate: role.animation,
               })
             }))
-            await asleep(role.gap)
+            //asleep(role.gap) //TODO: Implement gap
           }
         }
         /*
@@ -122,20 +128,21 @@ class Scenes {
       const enterDone = []
       const roles = scene.enter || []
 
-      return new Promise(async (resolve, reject) => {
+      return new Promise((resolve) => {
         if (roles.length < 1) resolve()
         for (const role of roles) {
           const modules = MM.getModules().withClass(role.role).filter(module => module.hidden)
           for (const module of modules) {
-            enterDone.push(new Promise(async (done, rej) => {
-              MM.showModule(module, role.duration, () => {
+            enterDone.push(new Promise((done) => {
+              MM.showModule(module, role.duration, async () => {
+                await asleep(role.gap)
                 done(module.name)
               }, {
                 lockString,
                 animate: role.animation,
               })
             }))
-            await asleep(role.gap)
+            //asleep(role.gap) //TODO: Implement gap
           }
         }
         //console.log(enterDone)
@@ -159,7 +166,7 @@ class Scenes {
     if (!isNaN(scene.life) && scene.life > 0) {
       clearTimeout(this.#timer)
       this.#timer = null
-      this.#timerStarted = new Date()
+      this.#timerStarted = new Date(Date.now())
       this.#timer = setTimeout(() => {
         clearTimeout(this.#timer)
         this.next()
@@ -175,7 +182,7 @@ class Scenes {
 
   async pause() {
     const life = this.#scenario[ this.#index ].life
-    this.#pausedRemaining = life - ((this.#timerStarted) ? this.#timerStarted - new Date() : 0)
+    this.#pausedRemaining = life - ((this.#timerStarted) ? this.#timerStarted - new Date(Date.now()) : 0)
     clearTimeout(this.#timer)
     this.#timer = null
     this.#timerStarted = null
@@ -191,7 +198,7 @@ class Scenes {
 
   async resume() {
     if (this.#pausedRemaining > 0) {
-      this.#timerStarted = new Date()
+      this.#timerStarted = new Date(Date.now())
       clearTimeout(this.#timer)
       this.#timer = setTimeout(() => {
         clearTimeout(this.#timer)
@@ -209,12 +216,50 @@ class Scenes {
   }
 
   async next() {
-    this.#index = (this.#index + 1) >= this.#scenario.length ? 0 : this.#index + 1
+    const scene = this.getScene(this.#index)
+    if (!scene) return {
+      status: false,
+      currentScene: null,
+      index: this.#index,
+      message: "Something wrong. Invalid index:" + this.#index 
+    }
+    const param = { scene: {...scene}, scenario: [...this.#scenario] }
+    const sn = (typeof scene.next === 'function') ? scene.next(param) : scene.next
+    const nextIndex = (sn === false) 
+      ? false 
+      : (sn === 0) 
+        ? 0 
+        : (sn) 
+          ? this.#findSceneIndex(sn) 
+          : ((this.#index + 1) >= this.#scenario.length ? 0 : this.#index + 1)
+    
+    if (nextIndex === false) return await this.current()
+
+    this.#index = nextIndex
     return await this.play(this.#index)
   }
 
   async previous() {
-    this.#index = (this.#index) <= 0 ? this.#scenario.length - 1 : this.#index - 1
+    const scene = this.getScene(this.#index)
+    if (!scene) return {
+      status: false,
+      currentScene: null,
+      index: this.#index,
+      message: "Something wrong. Invalid index:" + this.#index 
+    }
+    const param = { scene: {...scene}, scenario: [...this.#scenario] }
+    const sp = (typeof scene.previous === 'function') ? scene.previous(param) : scene.previous
+    const prevIndex = (sp === false)
+      ? false
+      : (sp === 0) 
+        ? 0 
+        : (sp) 
+          ? this.#findSceneIndex(sp) 
+          : ((this.#index - 1) < 0 ? this.#scenario.length - 1 : this.#index - 1)
+
+    if (prevIndex === false) return await this.current()
+
+    this.#index = prevIndex
     return await this.play(this.#index)
   }
 

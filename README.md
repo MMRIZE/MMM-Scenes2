@@ -7,7 +7,8 @@
 MagicMirror module to change screen scenes by time and order with **ANIMATION EFFECT**.
 
 ## Demo
-[![MMM-Scenes2 Demo](https://img.youtube.com/vi/VgL6rIedXqI/maxresdefault.jpg) Click To Play](https://www.youtube.com/watch?v=VgL6rIedXqI)
+[![MMM-Scenes2 Demo & Screenshot](./screenshot.jpg) Click To Play](https://www.youtube.com/watch?v=VgL6rIedXqI)
+
 Click it to see the DEMO.
 Its configuration file is in `/examples/config.js.example`
 
@@ -161,7 +162,7 @@ Each `enter` and `exit` could have a list of roles. `role` could be the name whi
 When you don't need to order different behaviours to the specific roles in the scene, the names are enough to direct which module will enter/exit.
 
 - `role`: the name of role-player module(s). 
-- `animation`: the name of animation. Currently, the possible animations are defined [here](https://github.com/MichMich/MagicMirror/blob/master/js/animateCSS.js). Or see [this](https://animate.style/)
+- `animation`: the name of animation. Currently, the possible animations are defined [here](https://github.com/MagicMirrorOrg/MagicMirror/blob/master/js/animateCSS.js). Or see [this](https://animate.style/)
 - `duration`: Speed of animation
 - `gap`: Each role module transitions sequentially with this delay. If set as 0, all modules of this role start their transition simultaneously.
 
