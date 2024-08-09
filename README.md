@@ -104,6 +104,7 @@ config: {
 |`defaultEnter`| { animation, duration, gap } | Convenient definition of default options for `enter`. I'll explain later. |
 |`defaultExit`| { animation, duration, gap } | Convenient definition of default options for `exit`. I'll explain later. |
 
+> There is no `defaultNext` or `defaultPrevious` because `next` and `previous` should differ according to the scene.
 
 ### `scene` Object in `scenario`
 `scenario` would have some series of `scene` objects. Each object would have these structures.
