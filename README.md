@@ -104,6 +104,7 @@ config: {
 |`defaultEnter`| { animation, duration, gap } | Convenient definition of default options for `enter`. I'll explain later. |
 |`defaultExit`| { animation, duration, gap } | Convenient definition of default options for `exit`. I'll explain later. |
 
+> There is no `defaultNext` or `defaultPrevious` because `next` and `previous` should differ according to the scene.
 
 ### `scene` Object in `scenario`
 `scenario` would have some series of `scene` objects. Each object would have these structures.
@@ -186,7 +187,7 @@ config: {
 }
 ```
 
-### `previous/next` in `scene`
+### `previous/next` in `scene` (since 1.1.0)
 By default, the order of the scenes is linearly executed in the order listed in `scenario:[...]`. For example, The third scene is executed after the second scene, and so on.
 
 However, there are cases where you may want to arbitrarily adjust the order of the scenes.
@@ -351,6 +352,10 @@ One more thing: You can change the scene by clicking/touching the indicator if y
 
 
 ## History
+### 1.1.0 (2024-08-09)
+- `next` / `previous` for branching scenario (even on-fly-time)
+- Code cleaning
+  
 ### 1.0.0 (2023-10-05)
 - Released
 
