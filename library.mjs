@@ -53,7 +53,6 @@ class Scenes {
         previous: (scene.previous === false) ? false : (scene.previous === 0) ? 0 : (scene.previous || null),
       }
     })
-    console.log(this.#scenario)
   }
 
   get length() {
@@ -92,70 +91,35 @@ class Scenes {
     if (!scene) return result
     this.#index = sceneIndex
     this.#pausedRemaining = 0
-    const exitAll = function () {
-      const exitDone = []
+
+    const exitAll = async function () {
       const roles = scene.exit || []
-      return new Promise((resolve) => {
-        if (roles.length < 1) resolve()
-        for (const role of roles) {
-          const modules = MM.getModules().withClass(role.role).filter(module => !module.hidden)
-          for (const module of modules) {
-            exitDone.push(new Promise((done) => {
-              MM.hideModule(module, role.duration, async () => {
-                await asleep(role.gap)
-                done(module.name)
-              }, {
-                lockString,
-                animate: role.animation,
-              })
-            }))
-            //asleep(role.gap) //TODO: Implement gap
-          }
+      if (roles.length < 1) return
+      for (const role of roles) {
+        const modules = MM.getModules().withClass(role.role).filter(module => !module.hidden)
+        for (const module of modules) {
+          MM.hideModule(module, role.duration, () => {}, {
+            lockString,
+            animate: role.animation,
+          })
+          await asleep(role.gap)
         }
-        /*
-        const _done = Promise.allSettled(exitDone)
-        Promise.any([ _done, timeout ]).then((result) => {
-          resolve(result)
-        })
-        */
-        Promise.allSettled(exitDone).then((res) => {
-          resolve(res)
-        })
-      })
+      }
     }
-
-    const enterAll = function () {
-      const enterDone = []
+    const enterAll = async function () {
       const roles = scene.enter || []
-
-      return new Promise((resolve) => {
-        if (roles.length < 1) resolve()
-        for (const role of roles) {
-          const modules = MM.getModules().withClass(role.role).filter(module => module.hidden)
-          for (const module of modules) {
-            enterDone.push(new Promise((done) => {
-              MM.showModule(module, role.duration, async () => {
-                await asleep(role.gap)
-                done(module.name)
-              }, {
-                lockString,
-                animate: role.animation,
-              })
-            }))
-            //asleep(role.gap) //TODO: Implement gap
-          }
+      if (roles.length < 1) return
+      for (const role of roles) {
+        const modules = MM.getModules().withClass(role.role).filter(module => module.hidden)
+        for (const module of modules) {
+          MM.showModule(module, role.duration, () => {}, {
+            lockString,
+            animate: role.animation,
+          })
+          await asleep(role.gap)
         }
-        //console.log(enterDone)
-        /*
-        const _done = Promise.allSettled(enterDone)
-        Promise.any([ _done, timeout ]).then((result) => {
-          resolve(result)
-        })
-        */
-        Promise.allSettled(enterDone).then((res) => {
-          resolve(res)
-        })
-      })
+      }
+      return true
     }
 
     Log.log("[SCENE] Scene transition starts:", scene.name)

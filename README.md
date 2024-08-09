@@ -92,7 +92,6 @@ config: {
   lockString: 'mmm-scenes2', // lockString for hide mechanism
   defaultEnter: { animation, duration, gap }, // convenient definition of default options for `enter`
   defaultExit: { animation, duration, gap }, // convenient definition of default options for `exit`
-
 }
 ```
 |**property**|**default**|**description**|
@@ -117,6 +116,8 @@ scenario: [
     life: 1000 * 30,
     activeIndicator: '■',
     inactiveIndicator: '□',
+    next: null, // Since 1.1.0
+    previous: null, // Since 1.1.0
   },
   // next scenes.
 ]
@@ -124,6 +125,7 @@ scenario: [
 - When you don't assign `name` by yourself, `scene_N`(scene_0, scene_1, ...) would be set automatically. This name would be used for external control, so it would be better to avoid `prev`, `next`, `pause`, `resume`, `play` as a scene name.
 - `life`, `activeIndicator`, `inactiveIndicator` are defined in global configuration, but they could be reassigned in the specific `scene` object by your needs.
 - When `life` is set as `0`, this scene would stop until an external command arrives. (e.g. TelegramBot command). You can set this value as `0` on the last scene to play the scenario only once.
+- **(new)** `next` and `previous` is introduced since 1.1.0. The 2 fields would be used for control the order of scenes. It'll be explained later.
 - `enter` and `exit` are the most important fields on `scene` object. See below.
 ### `enter/exit` Objects in `scene`
 ```js
@@ -183,6 +185,46 @@ config: {
   ...
 }
 ```
+
+### `previous/next` in `scene`
+By default, the order of the scenes is linearly executed in the order listed in `scenario:[...]`. For example, The third scene is executed after the second scene, and so on.
+
+However, there are cases where you may want to arbitrarily adjust the order of the scenes.
+
+- `previous/next` is used to force the previous and next scenes in each scene, respectively. The possible kind of values ​​are `(sceneIndex)`, `(sceneName)`, `null`, `false`, or `the callback function` which will return one of those values. 
+```js
+scenario: [ 
+...js
+  { 
+    name: "scene_003"
+    exit: ["role1", "role2"],
+    enter: ["role3", "role4"],
+    next: "scene_005", // sceneName
+    previous: 2, // Or sceneIndex
+  },
+...
+```
+This example means; the next scene of the this scene would be `"scene_005"`. And when `SCENE_PREV` is called, the previous of this scene would be the 3rd scene of the scenranio. (`2` means `3rd` because index would be zero-based.)
+
+- If you want to follow the original order in the scenrio, just omit `next`/`previous` or set it as `null`. (Default behaviours)
+
+- If you set it to `false`, the flow would be blocked. `next: false` means, you cannot forward anywhere from this scene. 
+
+```js
+next: false,
+previous: false,
+```
+This example means; `SCENE_PREV` or `SCENE_NEXT` will not work once you enter this scene. (but you can escape with `SCENE_PLAY` by force) 
+
+- Finally, instead of a static value, you can use a callback function to provide a value that changes dynamically depending on a condition. This can be useful when branching of the scenario is required.
+```js
+next: (scene, scenario) => {
+  return (Math.random() > 0.5) ? "scene_001" : "scene_002"
+}
+```
+This example shows, the next scene would be randomly selected between "scene_001" and "scene_002". Of course, you can program it for your purpose. (For example; `Normal scenario / Party scenario by time`, ...)
+
+More detailed examples are in the [wiki](https://github.com/MMRIZE/MMM-Scenes2/wiki).
 
 ## External Controls
 > Some syntax was changed from `MMM-Scenes`. Check it carefully if you are a user of the previous module.
