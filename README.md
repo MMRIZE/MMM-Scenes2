@@ -218,7 +218,10 @@ This example means; `SCENE_PREV` or `SCENE_NEXT` will not work once you enter th
 
 - Finally, instead of a static value, you can use a callback function to provide a value that changes dynamically depending on a condition. This can be useful when branching of the scenario is required.
 ```js
-next: (scene, scenario) => {
+next: ({ scene, scenario }) => {
+  // A Parameter `scene` would have the info of current scene.
+  // A parameter `scenario` would have the whole scenario information.
+  // console.log(scene, scenario)
   return (Math.random() > 0.5) ? "scene_001" : "scene_002"
 }
 ```
