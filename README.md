@@ -105,7 +105,7 @@ config: {
 |`defaultExit`| { animation, duration, gap } | Convenient definition of default options for `exit`. I'll explain later. |
 
 
-### `scene` Object in `scenario`
+### `scene` Object in `scenario` (Since 1.1.0)
 `scenario` would have some series of `scene` objects. Each object would have these structures.
 ```js
 scenario: [
@@ -348,6 +348,10 @@ One more thing: You can change the scene by clicking/touching the indicator if y
 
 
 ## History
+### 1.1.0 (2024-08-09)
+- `next` / `previous` for branching scenario (even on-fly-time)
+- Code cleaning
+  
 ### 1.0.0 (2023-10-05)
 - Released
 
