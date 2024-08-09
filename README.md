@@ -105,7 +105,7 @@ config: {
 |`defaultExit`| { animation, duration, gap } | Convenient definition of default options for `exit`. I'll explain later. |
 
 
-### `scene` Object in `scenario` (Since 1.1.0)
+### `scene` Object in `scenario`
 `scenario` would have some series of `scene` objects. Each object would have these structures.
 ```js
 scenario: [
@@ -186,7 +186,7 @@ config: {
 }
 ```
 
-### `previous/next` in `scene`
+### `previous/next` in `scene` (since 1.1.0)
 By default, the order of the scenes is linearly executed in the order listed in `scenario:[...]`. For example, The third scene is executed after the second scene, and so on.
 
 However, there are cases where you may want to arbitrarily adjust the order of the scenes.
