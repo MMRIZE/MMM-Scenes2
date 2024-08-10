@@ -195,9 +195,9 @@ However, there are cases where you may want to arbitrarily adjust the order of t
 - `previous/next` is used to force the previous and next scenes in each scene, respectively. The possible kind of values ​​are `(sceneIndex)`, `(sceneName)`, `null`, `false`, or `the callback function` which will return one of those values. 
 ```js
 scenario: [ 
-...js
+...
   { 
-    name: "scene_003"
+    name: "scene_003",
     exit: ["role1", "role2"],
     enter: ["role3", "role4"],
     next: "scene_005", // sceneName
