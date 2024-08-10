@@ -1,14 +1,28 @@
 {
   "name": "mmm-scenes2",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "The successor of MMM-Scnese since MM 2.25",
   "main": "MMM-Scenes2.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MMRIZE/MMM-Scenes2.git"
+  },
+  "keywords": [
+    "MagicMirror",
+    "Page",
+    "Scene"
+  ],
   "author": "eouia0819@gmail.com",
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.8.0",
+    "eslint": "^9.8.0",
+    "globals": "^15.9.0"
   }
 }

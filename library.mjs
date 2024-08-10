@@ -1,7 +1,9 @@
+/* global Log MM */
+
+
 function asleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
-
 
 class Scenes {
   #scenario = []
@@ -47,6 +49,8 @@ class Scenes {
         enter,
         exit,
         life: scene.life ?? defaults.life,
+        next: (scene.next === false) ? false : (scene.next === 0) ? 0 : (scene.next || null),
+        previous: (scene.previous === false) ? false : (scene.previous === 0) ? 0 : (scene.previous || null),
       }
     })
   }
@@ -87,68 +91,35 @@ class Scenes {
     if (!scene) return result
     this.#index = sceneIndex
     this.#pausedRemaining = 0
-    const exitAll = function () {
-      const exitDone = []
+
+    const exitAll = async function () {
       const roles = scene.exit || []
-      return new Promise(async (resolve, reject) => {
-        if (roles.length < 1) resolve()
-        for (const role of roles) {
-          const modules = MM.getModules().withClass(role.role).filter(module => !module.hidden)
-          for (const module of modules) {
-            exitDone.push(new Promise(async (done, rej) => {
-              MM.hideModule(module, role.duration, () => {
-                done(module.name)
-              }, {
-                lockString,
-                animate: role.animation,
-              })
-            }))
-            await asleep(role.gap)
-          }
+      if (roles.length < 1) return
+      for (const role of roles) {
+        const modules = MM.getModules().withClass(role.role).filter(module => !module.hidden)
+        for (const module of modules) {
+          MM.hideModule(module, role.duration, () => {}, {
+            lockString,
+            animate: role.animation,
+          })
+          await asleep(role.gap)
         }
-        /*
-        const _done = Promise.allSettled(exitDone)
-        Promise.any([ _done, timeout ]).then((result) => {
-          resolve(result)
-        })
-        */
-        Promise.allSettled(exitDone).then((res) => {
-          resolve(res)
-        })
-      })
+      }
     }
-
-    const enterAll = function () {
-      const enterDone = []
+    const enterAll = async function () {
       const roles = scene.enter || []
-
-      return new Promise(async (resolve, reject) => {
-        if (roles.length < 1) resolve()
-        for (const role of roles) {
-          const modules = MM.getModules().withClass(role.role).filter(module => module.hidden)
-          for (const module of modules) {
-            enterDone.push(new Promise(async (done, rej) => {
-              MM.showModule(module, role.duration, () => {
-                done(module.name)
-              }, {
-                lockString,
-                animate: role.animation,
-              })
-            }))
-            await asleep(role.gap)
-          }
+      if (roles.length < 1) return
+      for (const role of roles) {
+        const modules = MM.getModules().withClass(role.role).filter(module => module.hidden)
+        for (const module of modules) {
+          MM.showModule(module, role.duration, () => {}, {
+            lockString,
+            animate: role.animation,
+          })
+          await asleep(role.gap)
         }
-        //console.log(enterDone)
-        /*
-        const _done = Promise.allSettled(enterDone)
-        Promise.any([ _done, timeout ]).then((result) => {
-          resolve(result)
-        })
-        */
-        Promise.allSettled(enterDone).then((res) => {
-          resolve(res)
-        })
-      })
+      }
+      return true
     }
 
     Log.log("[SCENE] Scene transition starts:", scene.name)
@@ -159,7 +130,7 @@ class Scenes {
     if (!isNaN(scene.life) && scene.life > 0) {
       clearTimeout(this.#timer)
       this.#timer = null
-      this.#timerStarted = new Date()
+      this.#timerStarted = new Date(Date.now())
       this.#timer = setTimeout(() => {
         clearTimeout(this.#timer)
         this.next()
@@ -175,7 +146,7 @@ class Scenes {
 
   async pause() {
     const life = this.#scenario[ this.#index ].life
-    this.#pausedRemaining = life - ((this.#timerStarted) ? this.#timerStarted - new Date() : 0)
+    this.#pausedRemaining = life - ((this.#timerStarted) ? this.#timerStarted - new Date(Date.now()) : 0)
     clearTimeout(this.#timer)
     this.#timer = null
     this.#timerStarted = null
@@ -191,7 +162,7 @@ class Scenes {
 
   async resume() {
     if (this.#pausedRemaining > 0) {
-      this.#timerStarted = new Date()
+      this.#timerStarted = new Date(Date.now())
       clearTimeout(this.#timer)
       this.#timer = setTimeout(() => {
         clearTimeout(this.#timer)
@@ -209,12 +180,50 @@ class Scenes {
   }
 
   async next() {
-    this.#index = (this.#index + 1) >= this.#scenario.length ? 0 : this.#index + 1
+    const scene = this.getScene(this.#index)
+    if (!scene) return {
+      status: false,
+      currentScene: null,
+      index: this.#index,
+      message: "Something wrong. Invalid index:" + this.#index 
+    }
+    const param = { scene: {...scene}, scenario: [...this.#scenario] }
+    const sn = (typeof scene.next === 'function') ? scene.next(param) : scene.next
+    const nextIndex = (sn === false) 
+      ? false 
+      : (sn === 0) 
+        ? 0 
+        : (sn) 
+          ? this.#findSceneIndex(sn) 
+          : ((this.#index + 1) >= this.#scenario.length ? 0 : this.#index + 1)
+    
+    if (nextIndex === false) return await this.current()
+
+    this.#index = nextIndex
     return await this.play(this.#index)
   }
 
   async previous() {
-    this.#index = (this.#index) <= 0 ? this.#scenario.length - 1 : this.#index - 1
+    const scene = this.getScene(this.#index)
+    if (!scene) return {
+      status: false,
+      currentScene: null,
+      index: this.#index,
+      message: "Something wrong. Invalid index:" + this.#index 
+    }
+    const param = { scene: {...scene}, scenario: [...this.#scenario] }
+    const sp = (typeof scene.previous === 'function') ? scene.previous(param) : scene.previous
+    const prevIndex = (sp === false)
+      ? false
+      : (sp === 0) 
+        ? 0 
+        : (sp) 
+          ? this.#findSceneIndex(sp) 
+          : ((this.#index - 1) < 0 ? this.#scenario.length - 1 : this.#index - 1)
+
+    if (prevIndex === false) return await this.current()
+
+    this.#index = prevIndex
     return await this.play(this.#index)
   }
 
