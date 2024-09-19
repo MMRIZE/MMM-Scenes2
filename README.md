@@ -57,7 +57,7 @@ npm install
 // ... other modules ...
 
 {
-  module: "MMM-Scenes",
+  module: "MMM-Scenes2",
   position: 'bottom_bar', // Position of indicator
   config: {
     scenario: [ // `scenario` is REQUIRED
