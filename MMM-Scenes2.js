@@ -101,7 +101,9 @@ Module.register('MMM-Scenes2', {
             },
             updator: () => {
               this.updateDom(0)
-              this.sendNotification('SCENES_CHANGED', this.scenario.current())
+              this.scenario.current().then((result) => {
+                this.sendNotification('SCENES_CHANGED', result)
+              })
             },
           })
           resolve()

@@ -123,8 +123,8 @@ class Scenes {
 
     Log.log('[SCENE] Scene transition starts:', scene.name)
     await exitAll()
-    this.#updateCallback()
     await enterAll()
+    this.#updateCallback()
     Log.log('[SCENE] Scene will live:', scene.name, scene.life)
     if (!isNaN(scene.life) && scene.life > 0) {
       clearTimeout(this.#timer)
@@ -145,7 +145,8 @@ class Scenes {
 
   async pause() {
     const life = this.#scenario[this.#index].life
-    this.#pausedRemaining = life - ((this.#timerStarted) ? this.#timerStarted - new Date(Date.now()) : 0)
+    const elapsed = this.#timerStarted ? Date.now() - this.#timerStarted.getTime() : 0
+    this.#pausedRemaining = Math.max(0, life - elapsed)
     clearTimeout(this.#timer)
     this.#timer = null
     this.#timerStarted = null
