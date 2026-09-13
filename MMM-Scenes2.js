@@ -1,5 +1,22 @@
 /* global Module Log */
 
+const COMMAND_MAP = Object.freeze({
+  info: 'SCENES_CURRENT',
+  next: 'SCENES_NEXT',
+  prev: 'SCENES_PREV',
+  pause: 'SCENES_PAUSE',
+  resume: 'SCENES_RESUME',
+})
+
+const AVAILABLE_COMMANDS = Object.freeze([
+  'SCENES_PLAY',
+  'SCENES_NEXT',
+  'SCENES_PREV',
+  'SCENES_CURRENT',
+  'SCENES_PAUSE',
+  'SCENES_RESUME',
+])
+
 Module.register('MMM-Scenes2', {
   defaults: {
     scenario: [],
@@ -40,16 +57,8 @@ Module.register('MMM-Scenes2', {
   },
 
   command_scene: function (command, handler) {
-    const commandMap = {
-      info: 'SCENES_CURRENT',
-      next: 'SCENES_NEXT',
-      prev: 'SCENES_PREV',
-      pause: 'SCENES_PAUSE',
-      resume: 'SCENES_RESUME',
-    }
-
     const tCommand = handler.args['command'] || null
-    const commandName = commandMap[tCommand] || null
+    const commandName = COMMAND_MAP[tCommand] || null
     if (tCommand && commandName) {
       this.command(commandName, {
         callback: (result) => {
@@ -159,16 +168,7 @@ Module.register('MMM-Scenes2', {
   },
 
   notificationReceived: function (notification, payload) {
-    const availableCommand = [
-      'SCENES_PLAY',
-      'SCENES_NEXT',
-      'SCENES_PREV',
-      'SCENES_CURRENT',
-      'SCENES_PAUSE',
-      'SCENES_RESUME',
-    ]
-
-    if (availableCommand.includes(notification)) {
+    if (AVAILABLE_COMMANDS.includes(notification)) {
       this.command(notification, payload)
     }
   },
