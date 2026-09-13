@@ -1,6 +1,6 @@
 # MMM-Scenes2
 > **“Life is a theatre set in which there are but few practicable entrances.”**
->  
+>
 > ― Victor Hugo, Les Misérables
 
 
@@ -39,8 +39,6 @@ As described in the scenario, your MM screen will play a drama with modules.
 ```sh
 cd ~/MagicMirror/modules
 git clone https://github.com/MMRIZE/MMM-Scenes2
-cd MMM-Scenes2
-npm install
 ```
 
 ## Configuration
@@ -147,7 +145,7 @@ scenario: [
       }
     ],
     // OR
-    enter: [ 
+    enter: [
       "role1",
       {
         role: "role2",
@@ -164,7 +162,7 @@ Each `enter` and `exit` could have a list of roles. `role` could be the name whi
 
 When you don't need to order different behaviours to the specific roles in the scene, the names are enough to direct which module will enter/exit.
 
-- `role`: the name of role-player module(s). 
+- `role`: the name of role-player module(s).
 - `animation`: the name of animation. Currently, the possible animations are defined [here](https://github.com/MagicMirrorOrg/MagicMirror/blob/master/js/animateCSS.js). Or see [this](https://animate.style/)
 - `duration`: Speed of animation
 - `gap`: Each role module transitions sequentially with this delay. If set as 0, all modules of this role start their transition simultaneously.
@@ -192,11 +190,11 @@ By default, the order of the scenes is linearly executed in the order listed in 
 
 However, there are cases where you may want to arbitrarily adjust the order of the scenes.
 
-- `previous/next` is used to force the previous and next scenes in each scene, respectively. The possible kind of values ​​are `(sceneIndex)`, `(sceneName)`, `null`, `false`, or `the callback function` which will return one of those values. 
+- `previous/next` is used to force the previous and next scenes in each scene, respectively. The possible kind of values ​​are `(sceneIndex)`, `(sceneName)`, `null`, `false`, or `the callback function` which will return one of those values.
 ```js
-scenario: [ 
+scenario: [
 ...
-  { 
+  {
     name: "scene_003",
     exit: ["role1", "role2"],
     enter: ["role3", "role4"],
@@ -209,13 +207,13 @@ This example means; the next scene of the this scene would be `"scene_005"`. And
 
 - If you want to follow the original order in the scenrio, just omit `next`/`previous` or set it as `null`. (Default behaviours)
 
-- If you set it to `false`, the flow would be blocked. `next: false` means, you cannot forward anywhere from this scene. 
+- If you set it to `false`, the flow would be blocked. `next: false` means, you cannot forward anywhere from this scene.
 
 ```js
 next: false,
 previous: false,
 ```
-This example means; `SCENE_PREV` or `SCENE_NEXT` will not work once you enter this scene. (but you can escape with `SCENE_PLAY` by force) 
+This example means; `SCENE_PREV` or `SCENE_NEXT` will not work once you enter this scene. (but you can escape with `SCENE_PLAY` by force)
 
 - Finally, instead of a static value, you can use a callback function to provide a value that changes dynamically depending on a condition. This can be useful when branching of the scenario is required.
 ```js
@@ -257,7 +255,7 @@ Play the previous scene.
 Pause at current scene until another command comming.
 
 #### `SCENES_RESUME`, payload: { callback }
-Resume the scene. The remaining life at pause would be applied with this command. 
+Resume the scene. The remaining life at pause would be applied with this command.
 You can also resume with other commands(e.g. `SCENES_NEXT`). In that case, the remaining life would be ignored, and the scene would play instantly.
 
 #### `SCENES_CURRENT`, payload: { callback }
@@ -294,7 +292,7 @@ You can control MMM-Scenes2 using the Telegram app by installing the [MMM-Telegr
 - `/scene name:scene_2`
 
 ## Indicators
-You can assign indicators globally or scene-specifically. 
+You can assign indicators globally or scene-specifically.
 ```js
 config: {
   activeIndicator: '■',
@@ -355,7 +353,7 @@ One more thing: You can change the scene by clicking/touching the indicator if y
 ### 1.1.0 (2024-08-09)
 - `next` / `previous` for branching scenario (even on-fly-time)
 - Code cleaning
-  
+
 ### 1.0.0 (2023-10-05)
 - Released
 
