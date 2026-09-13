@@ -149,6 +149,21 @@ test('blocks next and previous when configured as false', async () => {
   assert.equal(next.currentScene.name, 'locked')
 })
 
+test('dispatches public scene commands', async () => {
+  const scenes = new Scenes({
+    scenario: [{ name: 'first', life: 0 }],
+  })
+
+  const played = await scenes.command('SCENES_PLAY', { scene: 'first' })
+  const current = await scenes.command('SCENES_CURRENT')
+  const invalid = await scenes.command('UNKNOWN')
+
+  assert.equal(played.status, true)
+  assert.equal(current.currentScene.name, 'first')
+  assert.equal(invalid.status, false)
+  assert.equal(invalid.message, 'Invalid command')
+})
+
 test('keeps the current scene when a branch target is unknown', async () => {
   const scenes = new Scenes({
     scenario: [

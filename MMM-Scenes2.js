@@ -190,18 +190,7 @@ Module.register('MMM-Scenes2', {
 
     if (!this.scenario) return userFunc(notyet)
 
-    const commandActions = {
-      SCENES_PLAY: () => this.scenario.play(payload?.scene ?? null),
-      SCENES_NEXT: () => this.scenario.next(),
-      SCENES_PREV: () => this.scenario.previous(),
-      SCENES_PAUSE: () => this.scenario.pause(),
-      SCENES_RESUME: () => this.scenario.resume(),
-      SCENES_CURRENT: () => this.scenario.current(),
-    }
-    const action = commandActions[command]
-    if (!action) return userFunc({ ...notyet, message: 'Invalid command' })
-
-    return action().then(userFunc)
+    return this.scenario.command(command, payload).then(userFunc)
   },
 
 })

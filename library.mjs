@@ -274,6 +274,27 @@ class Scenes {
     return await this.play(this.#index)
   }
 
+  command(command, payload = {}) {
+    const actions = {
+      SCENES_PLAY: () => this.play(payload.scene ?? null),
+      SCENES_NEXT: () => this.next(),
+      SCENES_PREV: () => this.previous(),
+      SCENES_PAUSE: () => this.pause(),
+      SCENES_RESUME: () => this.resume(),
+      SCENES_CURRENT: () => this.current(),
+    }
+    const action = actions[command]
+    if (!action) {
+      return Promise.resolve({
+        status: false,
+        index: null,
+        currentScene: null,
+        message: 'Invalid command',
+      })
+    }
+    return action()
+  }
+
   async current() {
     const scene = this.#scenario[this.#index]
     if (!scene) return {
