@@ -7,7 +7,16 @@
     "demo": "cd ../../ && MM_CONFIG_FILE=modules/MMM-Scenes2/demo.config.js node --run start:dev",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
+    "prepare": "simple-git-hooks || true",
     "test": "npm run lint"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*": [
+      "eslint --fix"
+    ]
   },
   "repository": {
     "type": "git",
@@ -26,6 +35,8 @@
     "@eslint/markdown": "^8.0.3",
     "@stylistic/eslint-plugin": "^5.10.0",
     "eslint": "^10.10.0",
-    "globals": "^17.12.0"
+    "globals": "^17.12.0",
+    "lint-staged": "^17.5.1",
+    "simple-git-hooks": "^2.14.0"
   }
 }
