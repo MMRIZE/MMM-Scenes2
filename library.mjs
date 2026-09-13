@@ -11,6 +11,7 @@ class Scenes {
   #timer = null
   #timerStarted = null
   #pausedRemaining = 0
+  #transitionId = 0
   #updateCallback = () => { }
   constructor({ scenario = [], defaults = {}, options = {}, updator = () => { } }) {
     this.#updateCallback = updator
@@ -78,6 +79,11 @@ class Scenes {
   }
 
   async play(id) {
+    const transitionId = ++this.#transitionId
+    const isCurrentTransition = () => transitionId === this.#transitionId
+    clearTimeout(this.#timer)
+    this.#timer = null
+    this.#timerStarted = null
     let result = {
       status: false,
       currentScene: null,
@@ -93,42 +99,55 @@ class Scenes {
 
     const exitAll = async function () {
       const roles = scene.exit || []
-      if (roles.length < 1) return
+      if (roles.length < 1) return true
       for (const role of roles) {
         const modules = MM.getModules().withClass(role.role).filter(module => !module.hidden)
         for (const module of modules) {
+          if (!isCurrentTransition()) return false
           MM.hideModule(module, role.duration, () => {}, {
             lockString,
             animate: role.animation,
           })
           await asleep(role.gap)
+          if (!isCurrentTransition()) return false
         }
       }
+      return true
     }
     const enterAll = async function () {
       const roles = scene.enter || []
-      if (roles.length < 1) return
+      if (roles.length < 1) return true
       for (const role of roles) {
         const modules = MM.getModules().withClass(role.role).filter(module => module.hidden)
         for (const module of modules) {
+          if (!isCurrentTransition()) return false
           MM.showModule(module, role.duration, () => {}, {
             lockString,
             animate: role.animation,
           })
           await asleep(role.gap)
+          if (!isCurrentTransition()) return false
         }
       }
       return true
     }
 
     Log.log('[SCENE] Scene transition starts:', scene.name)
-    await exitAll()
-    await enterAll()
+    if (!await exitAll() || !isCurrentTransition()) return {
+      status: false,
+      currentScene: this.#scenario[this.#index] || null,
+      index: this.#index,
+      message: 'Scene transition superseded',
+    }
+    if (!await enterAll() || !isCurrentTransition()) return {
+      status: false,
+      currentScene: this.#scenario[this.#index] || null,
+      index: this.#index,
+      message: 'Scene transition superseded',
+    }
     this.#updateCallback()
     Log.log('[SCENE] Scene will live:', scene.name, scene.life)
     if (!isNaN(scene.life) && scene.life > 0) {
-      clearTimeout(this.#timer)
-      this.#timer = null
       this.#timerStarted = new Date(Date.now())
       this.#timer = setTimeout(() => {
         clearTimeout(this.#timer)

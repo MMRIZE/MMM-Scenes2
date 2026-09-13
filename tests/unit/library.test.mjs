@@ -161,3 +161,35 @@ test('keeps the current scene when a branch target is unknown', async () => {
   assert.equal(result.currentScene.name, 'start')
   assert.equal((await scenes.current()).currentScene.name, 'start')
 })
+
+test('supersedes a transition when another scene starts', async () => {
+  const modules = [
+    { classes: ['old'], hidden: false },
+    { classes: ['first'], hidden: true },
+    { classes: ['second'], hidden: true },
+  ]
+  globalThis.MM = createModules(modules)
+  let updates = 0
+  const scenes = new Scenes({
+    scenario: [
+      { name: 'first', enter: [{ role: 'first', gap: 10 }], life: 0 },
+      { name: 'second', enter: ['second'], life: 0 },
+    ],
+    updator: () => {
+      updates++
+    },
+  })
+
+  const firstTransition = scenes.play('first')
+  await new Promise(resolve => setTimeout(resolve, 1))
+  const secondTransition = scenes.play('second')
+
+  const firstResult = await firstTransition
+  const secondResult = await secondTransition
+
+  assert.equal(firstResult.status, false)
+  assert.equal(firstResult.message, 'Scene transition superseded')
+  assert.equal(secondResult.status, true)
+  assert.equal((await scenes.current()).currentScene.name, 'second')
+  assert.equal(updates, 1)
+})
