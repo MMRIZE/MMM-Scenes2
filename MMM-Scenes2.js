@@ -53,7 +53,10 @@ Module.register('MMM-Scenes2', {
     if (tCommand && commandName) {
       this.command(commandName, {
         callback: (result) => {
-          handler.reply('TEXT', `Scene command [${tCommand}] : ${result.currentScene.name}`)
+          const message = result.currentScene
+            ? `Scene command [${tCommand}] : ${result.currentScene.name}`
+            : `Scene command [${tCommand}] failed: ${result.message}`
+          handler.reply('TEXT', message)
         },
       })
       return
@@ -64,7 +67,10 @@ Module.register('MMM-Scenes2', {
       this.command('SCENES_PLAY', {
         scene: id,
         callback: (result) => {
-          handler.reply('TEXT', 'Playing scene.\nScene name: ' + result.currentScene.name)
+          const message = result.currentScene
+            ? 'Playing scene.\nScene name: ' + result.currentScene.name
+            : 'Unable to play scene: ' + result.message
+          handler.reply('TEXT', message)
         },
       })
     }
