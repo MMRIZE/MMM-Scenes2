@@ -260,7 +260,58 @@ next: ({ scene, scenario }) => {
 
 This example shows the next scene being randomly selected between the automatically assigned names `scene_1` and `scene_2`. You can replace this with any branching logic you need, such as selecting a normal or party scenario based on the time.
 
-More detailed examples are in the [wiki](https://github.com/MMRIZE/MMM-Scenes2/wiki).
+### Practical branching examples
+
+#### Switch to a separate scenario by notification
+
+You can keep a normal loop running and switch to a separate scenario when another module sends a notification. Set `next: false` on the final special scene to keep it there until another command arrives.
+
+```js
+scenario: [
+  { name: 'SceneA', previous: 'SceneC', /* ... */ },
+  { name: 'SceneB', /* ... */ },
+  { name: 'SceneC', next: 'SceneA', /* ... */ },
+  { name: 'SceneD', previous: false, /* ... */ },
+  { name: 'SceneE', next: false, /* ... */ },
+]
+```
+
+The normal flow is `SceneA -> SceneB -> SceneC -> SceneA`. Sending `SCENES_PLAY` with `scene: 'SceneD'` switches to the special flow, which ends at `SceneE`. Send `SCENES_PLAY` with `scene: 'SceneA'` to return to the normal flow.
+
+```js
+this.sendNotification('SCENES_PLAY', {
+  scene: 'SceneD',
+  callback: (result) => console.log(result),
+})
+```
+
+#### Branch dynamically by callback
+
+`next` and `previous` can be callback functions. They receive the current `scene` and the complete `scenario`, and must return a scene name, a zero-based scene index, `null`, or `false`.
+
+```js
+const isSpecialSchedule = () => {
+  const now = new Date()
+  const isWeekend = now.getDay() === 0 || now.getDay() === 6
+  const isSpecificHours = now.getHours() > 7 && now.getHours() < 9
+  return isWeekend && isSpecificHours
+}
+
+scenario: [
+  {
+    name: 'SceneA',
+    next: () => isSpecialSchedule() ? 'SceneD' : 'SceneB',
+    previous: () => isSpecialSchedule() ? 'SceneE' : 'SceneC',
+    /* ... */
+  },
+  { name: 'SceneB', /* ... */ },
+  { name: 'SceneC', next: 'SceneA', /* ... */ },
+  { name: 'SceneD', /* ... */ },
+  { name: 'SceneE', next: 'SceneA', /* ... */ },
+]
+```
+
+When `SceneA` finishes, the callback selects either `SceneB` or `SceneD`. This allows a normal and a special schedule without another scheduler module.
 
 ## External Controls
 
@@ -304,7 +355,7 @@ You can also resume with other commands(e.g. `SCENES_NEXT`). In that case, the r
 
 Get information on the current scene.
 
-#### `SCENES_PLAY`, payload: { callback, scene }
+#### `SCENES_PLAY`, payload: `{ callback, scene }`
 
 Play a specific scene.
 `scene` could be a name or an index of a scene in the scenario. If omitted, the current scene would be applied.
