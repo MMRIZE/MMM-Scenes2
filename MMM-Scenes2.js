@@ -89,38 +89,28 @@ Module.register('MMM-Scenes2', {
     this.config.defaultEnter = { ...this.predefined.defaultEnter, ...this.config.defaultEnter }
     this.config.defaultExit = { ...this.predefined.defaultExit, ...this.config.defaultExit }
     this.scenario = null
-    let _loadModule = new Promise((resolve, reject) => {
-      try {
-        import('/' + this.file('library.mjs')).then(({ Scenes }) => {
-          this.scenario = new Scenes({
-            scenario: this.config.scenario,
-            defaults: {
-              defaultEnter: this.config.defaultEnter,
-              defaultExit: this.config.defaultExit,
-              activeIndicator: this.config.activeIndicator,
-              inactiveIndicator: this.config.inactiveIndicator,
-              life: this.config.life,
-            },
-            options: {
-              lockString: this.config.lockString,
-            },
-            onChange: async () => {
-              this.updateDom(0)
-              const result = await this.scenario.current()
-              this.sendNotification('SCENES_CHANGED', result)
-            },
-          })
-          resolve()
-        })
-      }
-      catch (e) {
-        reject(e)
-      }
-    })
-    _loadModule.then(() => {
+    import('/' + this.file('library.mjs')).then(({ Scenes }) => {
+      this.scenario = new Scenes({
+        scenario: this.config.scenario,
+        defaults: {
+          defaultEnter: this.config.defaultEnter,
+          defaultExit: this.config.defaultExit,
+          activeIndicator: this.config.activeIndicator,
+          inactiveIndicator: this.config.inactiveIndicator,
+          life: this.config.life,
+        },
+        options: {
+          lockString: this.config.lockString,
+        },
+        onChange: async () => {
+          this.updateDom(0)
+          const result = await this.scenario.current()
+          this.sendNotification('SCENES_CHANGED', result)
+        },
+      })
       this._start()
-    }).catch((e) => {
-      Log.error(e)
+    }).catch((error) => {
+      Log.error(error)
     })
   },
 
