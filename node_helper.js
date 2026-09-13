@@ -27,7 +27,4 @@ module.exports = NodeHelper.create({
     })
   },
 
-  socketNotificationReceived: function (notification, payload) {
-    this.sendSocketNotification(notification, payload) // just for check
-  },
 })

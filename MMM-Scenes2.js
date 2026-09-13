@@ -86,7 +86,6 @@ Module.register('MMM-Scenes2', {
       Log.error(`Your MagicMirror version is ${mmVersion}. This module requires version 2.25.0 or greater.`)
       return
     }
-    this.sendSocketNotification('START')
     this.config.defaultEnter = { ...this.predefined.defaultEnter, ...this.config.defaultEnter }
     this.config.defaultExit = { ...this.predefined.defaultExit, ...this.config.defaultExit }
     this.scenario = null
