@@ -143,3 +143,21 @@ test('blocks next and previous when configured as false', async () => {
   assert.equal(previous.index, 0)
   assert.equal(next.currentScene.name, 'locked')
 })
+
+test('keeps the current scene when a branch target is unknown', async () => {
+  const scenes = new Scenes({
+    scenario: [
+      { name: 'start', next: 'missing', life: 0 },
+      { name: 'end', life: 0 },
+    ],
+  })
+
+  await scenes.play('start')
+  const result = await scenes.next()
+
+  assert.equal(result.status, false)
+  assert.equal(result.message, 'Target scene not found')
+  assert.equal(result.index, 0)
+  assert.equal(result.currentScene.name, 'start')
+  assert.equal((await scenes.current()).currentScene.name, 'start')
+})

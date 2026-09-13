@@ -198,6 +198,14 @@ class Scenes {
               : ((this.#index + 1) >= this.#scenario.length ? 0 : this.#index + 1)
 
     if (nextIndex === false) return await this.current()
+    if (nextIndex === null) {
+      return {
+        status: false,
+        currentScene: scene,
+        index: this.#index,
+        message: 'Target scene not found',
+      }
+    }
 
     this.#index = nextIndex
     return await this.play(this.#index)
@@ -222,6 +230,14 @@ class Scenes {
               : ((this.#index - 1) < 0 ? this.#scenario.length - 1 : this.#index - 1)
 
     if (prevIndex === false) return await this.current()
+    if (prevIndex === null) {
+      return {
+        status: false,
+        currentScene: scene,
+        index: this.#index,
+        message: 'Target scene not found',
+      }
+    }
 
     this.#index = prevIndex
     return await this.play(this.#index)
