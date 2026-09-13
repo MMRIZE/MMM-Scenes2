@@ -1,18 +1,20 @@
 # MMM-Scenes2
+
 > **“Life is a theatre set in which there are but few practicable entrances.”**
 >
 > ― Victor Hugo, Les Misérables
 
-
 MagicMirror module to change screen scenes by time and order with **ANIMATION EFFECT**.
 
 ## Demo
+
 [![MMM-Scenes2 Demo & Screenshot](./screenshot.jpg) Click To Play](https://www.youtube.com/watch?v=VgL6rIedXqI)
 
 Click it to see the DEMO.
 Its configuration file is in `/examples/config.js.example`
 
 ## Successor of `MMM-Scenes`
+
 Since MM 2.25, a new feature, `animateCSS` is introduced into the MagicMirror.
 
 With this update, my previous `MMM-Scenes` would be obsoleted. So I remade a new module for MM 2.25
@@ -21,14 +23,15 @@ With this update, my previous `MMM-Scenes` would be obsoleted. So I remade a new
 - I redesigned the structure more simply and intuitively. (`role` is introduced.)
 
 ## Concept
+
 The scenario of the MM screen is made up of a series of scenes. Each module has its role in its appearance scenes to enter and exit by design.
 
 When a scene begins, all modules whose roles end will be expelled, and all modules with the parts in that scene will be admitted.
 
 As described in the scenario, your MM screen will play a drama with modules.
 
-
 ## Features
+
 - control show/hide modules by assigning role names to the module's class
 - various animations for modules exit/enter
 - control scenes by notification and WebURL endpoints.
@@ -36,20 +39,35 @@ As described in the scenario, your MM screen will play a drama with modules.
 - custom indicators
 
 ## Install
+
+The recommended way to install the module is by cloning the repository into your MagicMirror modules directory:
+
 ```sh
 cd ~/MagicMirror/modules
 git clone https://github.com/MMRIZE/MMM-Scenes2
 ```
 
+## Update
+
+To update the module, navigate to your MagicMirror modules directory and pull the latest changes from the repository:
+
+```sh
+cd ~/MagicMirror/modules/MMM-Scenes2
+git pull
+```
+
 ## Configuration
+
 > Don't worry, it's not as difficult as it looks.
 > You can find a real-world example in the `examples` directory.
-### The simplest example;
+
+### The simplest example
+
 ```js
 {
   module: "clock",
   position: "top_left",
-  hiddenOnStart: true,
+  hiddenOnStartup: true,
   classes: "role1 role_final" // <-- assign role(s) to the module to control.
 },
 // ... other modules ...
@@ -69,18 +87,19 @@ git clone https://github.com/MMRIZE/MMM-Scenes2
       },
     ]
   }
-}
-
+},
 ```
+
 > This `scenario` has 2 scenes. At the first scene, `"role1"` and `"role2"` module(s) will exit from the scene with default animation. Then `"role3"` and `"role4"` module(s) will enter into the scene. After some lifetime, the second scene will start. `"role3"` module(s) will be disappeared and `"role_final"` scene will be revealed. (`"role4"` will remain at the second scene.) And the whole scenario will repeat.
 
 > In other words, the `clock` module will exit from the first scene as `"role1"` and will enter into the second scene as `"role_final"`.
 
+### Configuration options
 
-### Options
 ```js
 config: {
   scenario: [ ... ], // Array of scene objects. This is the only option MUST-REQUIRED. You should fulfil this option in your configuration.
+  autoStart: true, // start the first scene automatically
 
   //Below are omittable. You don't have to describe all these options in your config.
   life: 1000 * 60, // default life of each scene
@@ -92,9 +111,11 @@ config: {
   defaultExit: { animation, duration, gap }, // convenient definition of default options for `exit`
 }
 ```
+
 |**property**|**default**|**description**|
 |---|---|---|
 |`scenario`| [] | **REQUIRED** The order-set of scenes. You SHOULD set the scene definition (object) as the items of this property.|
+|`autoStart`|`true`|Start the first scene automatically when the module starts. Set to `false` to start scenes only through external control.|
 |`life`| 1000 * 60 | (ms) The life of each scene after all roles are appeared. After this time, the next scene would start. <br> If set as `0`, the scene would be paused unless external control(notification, telegram, ...) happens.|
 |`activeIndicator`|'■'| Default indicator of current active scene. You can reassign it in each scene object. |
 |`inactiveIndicator`|'□'| Default indicator of other inactive scenes. This could also be reassigned in each scene object. |
@@ -105,7 +126,9 @@ config: {
 > There is no `defaultNext` or `defaultPrevious` because `next` and `previous` should differ according to the scene.
 
 ### `scene` Object in `scenario`
+
 `scenario` would have some series of `scene` objects. Each object would have these structures.
+
 ```js
 scenario: [
   {
@@ -121,12 +144,15 @@ scenario: [
   // next scenes.
 ]
 ```
-- When you don't assign `name` by yourself, `scene_N`(scene_0, scene_1, ...) would be set automatically. This name would be used for external control, so it would be better to avoid `prev`, `next`, `pause`, `resume`, `play` as a scene name.
+
+- When you don't assign `name` by yourself, `scene_N` (scene_1, scene_2, ...) is assigned automatically. This name is used for external control, so it would be better to avoid `prev`, `next`, `pause`, `resume`, `play` as a scene name.
 - `life`, `activeIndicator`, `inactiveIndicator` are defined in global configuration, but they could be reassigned in the specific `scene` object by your needs.
 - When `life` is set as `0`, this scene would stop until an external command arrives. (e.g. TelegramBot command). You can set this value as `0` on the last scene to play the scenario only once.
 - **(new)** `next` and `previous` is introduced since 1.1.0. The 2 fields would be used for control the order of scenes. It'll be explained later.
 - `enter` and `exit` are the most important fields on `scene` object. See below.
+
 ### `enter/exit` Objects in `scene`
+
 ```js
 scenario: [
   {
@@ -158,6 +184,7 @@ scenario: [
   // ... more
 ],
 ```
+
 Each `enter` and `exit` could have a list of roles. `role` could be the name which you assigned in `classes` of modules, or the object which has a definition of the role, or a mix of names and objects.
 
 When you don't need to order different behaviours to the specific roles in the scene, the names are enough to direct which module will enter/exit.
@@ -168,6 +195,7 @@ When you don't need to order different behaviours to the specific roles in the s
 - `gap`: Each role module transitions sequentially with this delay. If set as 0, all modules of this role start their transition simultaneously.
 
 For your convenience, You can define `defaultEnter` and `defaultExit` for the common setting of all roles unless each value is reassigned in the specific scene.
+
 ```js
 config: {
   defaultEnter: {
@@ -182,15 +210,17 @@ config: {
   },
   scenario: [ ... ],
   ...
-}
+},
 ```
 
-### `previous/next` in `scene` (since 1.1.0)
+### `previous/next` in `scene`
+
 By default, the order of the scenes is linearly executed in the order listed in `scenario:[...]`. For example, The third scene is executed after the second scene, and so on.
 
 However, there are cases where you may want to arbitrarily adjust the order of the scenes.
 
 - `previous/next` is used to force the previous and next scenes in each scene, respectively. The possible kind of values ​​are `(sceneIndex)`, `(sceneName)`, `null`, `false`, or `the callback function` which will return one of those values.
+
 ```js
 scenario: [
 ...
@@ -203,9 +233,10 @@ scenario: [
   },
 ...
 ```
-This example means; the next scene of the this scene would be `"scene_005"`. And when `SCENE_PREV` is called, the previous of this scene would be the 3rd scene of the scenranio. (`2` means `3rd` because index would be zero-based.)
 
-- If you want to follow the original order in the scenrio, just omit `next`/`previous` or set it as `null`. (Default behaviours)
+This example means the next scene of this scene would be `"scene_005"`. When `SCENES_PREV` is called, the previous scene would be the 3rd scene in the scenario. (`2` means `3rd` because the index is zero-based.)
+
+- If you want to follow the original order in the scenario, just omit `next`/`previous` or set them to `null` (the default behavior).
 
 - If you set it to `false`, the flow would be blocked. `next: false` means, you cannot forward anywhere from this scene.
 
@@ -213,27 +244,33 @@ This example means; the next scene of the this scene would be `"scene_005"`. And
 next: false,
 previous: false,
 ```
-This example means; `SCENE_PREV` or `SCENE_NEXT` will not work once you enter this scene. (but you can escape with `SCENE_PLAY` by force)
+
+This example means `SCENES_PREV` and `SCENES_NEXT` will not work once you enter this scene. You can still escape with `SCENES_PLAY`.
 
 - Finally, instead of a static value, you can use a callback function to provide a value that changes dynamically depending on a condition. This can be useful when branching of the scenario is required.
+
 ```js
 next: ({ scene, scenario }) => {
   // A Parameter `scene` would have the info of current scene.
   // A parameter `scenario` would have the whole scenario information.
   // console.log(scene, scenario)
-  return (Math.random() > 0.5) ? "scene_001" : "scene_002"
-}
+  return (Math.random() > 0.5) ? "scene_1" : "scene_2"
+},
 ```
-This example shows, the next scene would be randomly selected between "scene_001" and "scene_002". Of course, you can program it for your purpose. (For example; `Normal scenario / Party scenario by time`, ...)
+
+This example shows the next scene being randomly selected between the automatically assigned names `scene_1` and `scene_2`. You can replace this with any branching logic you need, such as selecting a normal or party scenario based on the time.
 
 More detailed examples are in the [wiki](https://github.com/MMRIZE/MMM-Scenes2/wiki).
 
 ## External Controls
+
 > Some syntax was changed from `MMM-Scenes`. Check it carefully if you are a user of the previous module.
+
 ### Incoming notifications
 - Each incoming notification could have a `callback` function as a member of the payload. It will be called when your notification request is done.
+
 ```js
-this.sendNotification('SCENE_NEXT', {
+this.sendNotification('SCENES_NEXT', {
   callback: (result) => { console.log(result.status) }
 })
 
@@ -245,32 +282,43 @@ this.sendNotification('SCENE_NEXT', {
   message: "Example..."
 }
 ```
+
 #### `SCENES_NEXT`, payload: { callback }
+
 Play the next scene.
 
-#### `SCENES_PREV`, payload: { callback, }
+#### `SCENES_PREV`, payload: `{ callback }`
+
 Play the previous scene.
 
 #### `SCENES_PAUSE`, payload: { callback }
-Pause at current scene until another command comming.
+
+Pause at the current scene until another command arrives.
 
 #### `SCENES_RESUME`, payload: { callback }
+
 Resume the scene. The remaining life at pause would be applied with this command.
 You can also resume with other commands(e.g. `SCENES_NEXT`). In that case, the remaining life would be ignored, and the scene would play instantly.
 
 #### `SCENES_CURRENT`, payload: { callback }
+
 Get information on the current scene.
 
 #### `SCENES_PLAY`, payload: { callback, scene }
+
 Play a specific scene.
 `scene` could be a name or an index of a scene in the scenario. If omitted, the current scene would be applied.
 
 ### Outgoing Notification
-#### `SCENES_CHANGED`, payload: { info }
-When scenes are changed, this notification will be emitted.
+
+#### `SCENES_CHANGED`, payload: `{ status, currentScene, index, message }`
+
+This notification is emitted after the scene transition has completed. The payload has the same shape as the result of `SCENES_CURRENT`.
 
 ### WebAPI Endpoint
+
 You can access MM URL to control this module from outside of MM. e.g.) IFTTT.
+
 ```text
 http://magicmirror.domain/scenes/pause
 http://magicmirror.domain/scenes/resume
@@ -281,6 +329,7 @@ http://magicmirror.domain/scenes/scene_2
 ```
 
 ### MMM-TelegramBot Integration
+
 You can control MMM-Scenes2 using the Telegram app by installing the [MMM-TelegramBot](https://github.com/MMRIZE/MMM-TelegramBot) module.
 
 - `/scene info`
@@ -292,15 +341,18 @@ You can control MMM-Scenes2 using the Telegram app by installing the [MMM-Telegr
 - `/scene name:scene_2`
 
 ## Indicators
+
 You can assign indicators globally or scene-specifically.
+
 ```js
 config: {
   activeIndicator: '■',
   inactiveIndicator: '□',
   scenario: [ ... ],
   ...
-}
+},
 ```
+
 If you have 4 scenes in the scenario, the indicator will be shown as `□ ■ □ □`(the second scene is active).
 
 ```js
@@ -314,12 +366,13 @@ config: {
     },
     ...
   ]
-}
+},
 ```
+
 Like this, you can reassign indicators for specific scenes. In this case, you can see `❶ □ □ □` or `① ■ □ □`.
 
-
 You can decorate the indicators with CSS in your `custom.css`; The structure of HTML created will be like this
+
 ```html
 <div class="scenes_indicator">
   <span class="scenes_indicator_scene index_0 inactive first">□</span>
@@ -327,7 +380,9 @@ You can decorate the indicators with CSS in your `custom.css`; The structure of 
   <span class="scenes_indicator_scene index_2 inactive last">□</span>
 </div>
 ```
-You can decorate its look like this;
+
+You can decorate its look like this:
+
 ```css
 /* custom.css */
 .scenes_indicator_scene.inactive {
@@ -344,12 +399,13 @@ You can decorate its look like this;
 One more thing: You can change the scene by clicking/touching the indicator if your MM supports click/touch.
 
 ## Tips & ETC
+
 - I dropped out some features of `MMM-Scenes` like `customized animation` or some things in this module. If you need to implement it again, feel free to tell me. I'll consider it.
 - If the `life` of a scene is set as `0`, that scene will not be forwarded to the next scene. You can use this feature to make control looping or some hidden scenes for specific purposes.
 - RPI3 or older/weaker SBC doesn't have enough power to handle the animation. In that case, use animation default or avoid serious effects.
 
-
 ## History
+
 ### 1.1.0 (2024-08-09)
 - `next` / `previous` for branching scenario (even on-fly-time)
 - Code cleaning
