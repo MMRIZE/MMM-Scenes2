@@ -5,7 +5,9 @@
   "main": "MMM-Scenes2.js",
   "scripts": {
     "demo": "cd ../../ && MM_CONFIG_FILE=modules/MMM-Scenes2/demo.config.js node --run start:dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "test": "npm run lint"
   },
   "repository": {
     "type": "git",
@@ -19,8 +21,11 @@
   "author": "eouia0819@gmail.com",
   "license": "MIT",
   "devDependencies": {
-    "@eslint/js": "^9.8.0",
-    "eslint": "^9.8.0",
-    "globals": "^15.9.0"
+    "@eslint/css": "^2.0.0",
+    "@eslint/js": "^10.0.1",
+    "@eslint/markdown": "^8.0.3",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0"
   }
 }
