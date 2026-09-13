@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
+import { mock, test } from 'node:test'
 
 const log = { log() {} }
 globalThis.Log = log
@@ -11,7 +11,10 @@ globalThis.MM = {
 
 const { Scenes } = await import('../../library.mjs')
 
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+const flushTimers = async () => {
+  await Promise.resolve()
+  await Promise.resolve()
+}
 
 function createModules(modules) {
   return {
@@ -164,6 +167,22 @@ test('keeps the current scene when a branch target is unknown', async () => {
   assert.equal((await scenes.current()).currentScene.name, 'start')
 })
 
+test('rejects malformed numeric branch targets', async () => {
+  const scenes = new Scenes({
+    scenario: [
+      { name: 'start', next: '1scene', life: 0 },
+      { name: 'end', life: 0 },
+    ],
+  })
+
+  await scenes.play('start')
+  const result = await scenes.next()
+
+  assert.equal(result.status, false)
+  assert.equal(result.message, 'Target scene not found')
+  assert.equal(result.index, 0)
+})
+
 test('supersedes a transition when another scene starts', async () => {
   const modules = [
     { classes: ['old'], hidden: false },
@@ -206,7 +225,9 @@ test('handles an empty scenario without throwing', async () => {
   }
 })
 
-test('advances when a scene lifetime expires', async () => {
+test('advances when a scene lifetime expires', async (t) => {
+  mock.timers.enable({ apis: ['Date', 'setTimeout'], now: 0 })
+  t.after(() => mock.timers.reset())
   const scenes = new Scenes({
     scenario: [
       { name: 'short', life: 10 },
@@ -215,12 +236,15 @@ test('advances when a scene lifetime expires', async () => {
   })
 
   await scenes.play('short')
-  await wait(30)
+  mock.timers.tick(10)
+  await flushTimers()
 
   assert.equal((await scenes.current()).currentScene.name, 'last')
 })
 
-test('pauses and resumes the scene lifetime', async () => {
+test('pauses and resumes the scene lifetime', async (t) => {
+  mock.timers.enable({ apis: ['Date', 'setTimeout'], now: 0 })
+  t.after(() => mock.timers.reset())
   const scenes = new Scenes({
     scenario: [
       { name: 'pausable', life: 30 },
@@ -229,14 +253,16 @@ test('pauses and resumes the scene lifetime', async () => {
   })
 
   await scenes.play('pausable')
-  await wait(8)
+  mock.timers.tick(8)
   const paused = await scenes.pause()
 
   assert.equal(paused.status, true)
-  await wait(35)
+  mock.timers.tick(35)
   assert.equal((await scenes.current()).currentScene.name, 'pausable')
 
   await scenes.resume()
-  await wait(35)
+  await scenes.resume()
+  mock.timers.tick(22)
+  await flushTimers()
   assert.equal((await scenes.current()).currentScene.name, 'last')
 })

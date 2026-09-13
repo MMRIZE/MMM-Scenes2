@@ -1,7 +1,7 @@
 /* global Log MM */
 
 function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise(resolve => globalThis.setTimeout(resolve, ms))
 }
 
 class Scenes {
@@ -13,6 +13,7 @@ class Scenes {
   #pausedRemaining = 0
   #transitionId = 0
   #onChange = () => { }
+
   constructor({ scenario = [], defaults = {}, options = {}, onChange, updator } = {}) {
     this.#onChange = onChange || updator || this.#onChange
     this.#options = options
@@ -73,13 +74,14 @@ class Scenes {
   #findSceneIndex(id) {
     const found = this.#scenario.findIndex(scene => scene.name === id)
     if (found >= 0) return found
-    const index = parseInt(id)
-    if (!isNaN(index) && index >= 0 && index < this.#scenario.length) return index
+    if (id === null || id === undefined || id === '') return null
+    const index = Number(id)
+    if (Number.isInteger(index) && index >= 0 && index < this.#scenario.length) return index
     return null
   }
 
   #clearTimer() {
-    clearTimeout(this.#timer)
+    globalThis.clearTimeout(this.#timer)
     this.#timer = null
     this.#timerStarted = null
   }
@@ -87,7 +89,7 @@ class Scenes {
   #scheduleNext(life) {
     if (isNaN(life) || life <= 0) return
     this.#timerStarted = Date.now()
-    this.#timer = setTimeout(() => {
+    this.#timer = globalThis.setTimeout(() => {
       this.#clearTimer()
       void this.next().catch(error => Log.error(error))
     }, life)
@@ -110,7 +112,7 @@ class Scenes {
     this.#index = sceneIndex
     this.#pausedRemaining = 0
 
-    const transitionRoles = async function (roles, isVisible, transition) {
+    const transitionRoles = async (roles, isVisible, transition) => {
       if (roles.length < 1) return true
       for (const role of roles) {
         const modules = MM.getModules().withClass(role.role).filter(isVisible)
@@ -173,7 +175,7 @@ class Scenes {
       index: null,
     }
     const life = scene.life
-    const elapsed = this.#timerStarted ? Date.now() - this.#timerStarted : 0
+    const elapsed = this.#timerStarted !== null ? Date.now() - this.#timerStarted : 0
     this.#pausedRemaining = Math.max(0, life - elapsed)
     this.#clearTimer()
     let result = {
@@ -197,6 +199,7 @@ class Scenes {
     if (this.#pausedRemaining > 0) {
       this.#scheduleNext(this.#pausedRemaining)
     }
+    this.#pausedRemaining = 0
     let result = {
       message: 'Scene Resumed',
       status: true,
@@ -288,7 +291,8 @@ class Scenes {
   }
 
   getScene(id) {
-    return this.#scenario.find(scene => scene.name === id) || this.#scenario[id] || null
+    const index = this.#findSceneIndex(id)
+    return index === null ? null : this.#scenario[index]
   }
 }
 
