@@ -11,6 +11,8 @@ globalThis.MM = {
 
 const { Scenes } = await import('../../library.mjs')
 
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+
 function createModules(modules) {
   return {
     getModules: () => ({
@@ -202,4 +204,39 @@ test('handles an empty scenario without throwing', async () => {
     assert.equal(result.message, 'No current scene')
     assert.equal(result.currentScene, null)
   }
+})
+
+test('advances when a scene lifetime expires', async () => {
+  const scenes = new Scenes({
+    scenario: [
+      { name: 'short', life: 10 },
+      { name: 'last', life: 0 },
+    ],
+  })
+
+  await scenes.play('short')
+  await wait(30)
+
+  assert.equal((await scenes.current()).currentScene.name, 'last')
+})
+
+test('pauses and resumes the scene lifetime', async () => {
+  const scenes = new Scenes({
+    scenario: [
+      { name: 'pausable', life: 30 },
+      { name: 'last', life: 0 },
+    ],
+  })
+
+  await scenes.play('pausable')
+  await wait(8)
+  const paused = await scenes.pause()
+
+  assert.equal(paused.status, true)
+  await wait(35)
+  assert.equal((await scenes.current()).currentScene.name, 'pausable')
+
+  await scenes.resume()
+  await wait(35)
+  assert.equal((await scenes.current()).currentScene.name, 'last')
 })
