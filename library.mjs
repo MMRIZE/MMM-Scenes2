@@ -1,6 +1,6 @@
 /* global Log MM */
 
-function asleep(ms) {
+function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
@@ -12,9 +12,9 @@ class Scenes {
   #timerStarted = null
   #pausedRemaining = 0
   #transitionId = 0
-  #updateCallback = () => { }
-  constructor({ scenario = [], defaults = {}, options = {}, updator = () => { } } = {}) {
-    this.#updateCallback = updator
+  #onChange = () => { }
+  constructor({ scenario = [], defaults = {}, options = {}, onChange, updator } = {}) {
+    this.#onChange = onChange || updator || this.#onChange
     this.#options = options
     this.#scenario = scenario.map((scene, index) => {
       const enter = (scene.enter || []).map((role) => {
@@ -78,12 +78,25 @@ class Scenes {
     return null
   }
 
-  async play(id) {
-    const transitionId = ++this.#transitionId
-    const isCurrentTransition = () => transitionId === this.#transitionId
+  #clearTimer() {
     clearTimeout(this.#timer)
     this.#timer = null
     this.#timerStarted = null
+  }
+
+  #scheduleNext(life) {
+    if (isNaN(life) || life <= 0) return
+    this.#timerStarted = Date.now()
+    this.#timer = setTimeout(() => {
+      this.#clearTimer()
+      void this.next().catch(error => Log.error(error))
+    }, life)
+  }
+
+  async play(id) {
+    const transitionId = ++this.#transitionId
+    const isCurrentTransition = () => transitionId === this.#transitionId
+    this.#clearTimer()
     let result = {
       status: false,
       currentScene: null,
@@ -97,40 +110,35 @@ class Scenes {
     this.#index = sceneIndex
     this.#pausedRemaining = 0
 
-    const exitAll = async function () {
-      const roles = scene.exit || []
+    const transitionRoles = async function (roles, isVisible, transition) {
       if (roles.length < 1) return true
       for (const role of roles) {
-        const modules = MM.getModules().withClass(role.role).filter(module => !module.hidden)
+        const modules = MM.getModules().withClass(role.role).filter(isVisible)
         for (const module of modules) {
           if (!isCurrentTransition()) return false
-          MM.hideModule(module, role.duration, () => {}, {
-            lockString,
-            animate: role.animation,
-          })
-          await asleep(role.gap)
+          transition(module, role)
+          await delay(role.gap)
           if (!isCurrentTransition()) return false
         }
       }
       return true
     }
-    const enterAll = async function () {
-      const roles = scene.enter || []
-      if (roles.length < 1) return true
-      for (const role of roles) {
-        const modules = MM.getModules().withClass(role.role).filter(module => module.hidden)
-        for (const module of modules) {
-          if (!isCurrentTransition()) return false
-          MM.showModule(module, role.duration, () => {}, {
-            lockString,
-            animate: role.animation,
-          })
-          await asleep(role.gap)
-          if (!isCurrentTransition()) return false
-        }
-      }
-      return true
-    }
+    const exitAll = () => transitionRoles(
+      scene.exit || [],
+      module => !module.hidden,
+      (module, role) => MM.hideModule(module, role.duration, () => {}, {
+        lockString,
+        animate: role.animation,
+      }),
+    )
+    const enterAll = () => transitionRoles(
+      scene.enter || [],
+      module => module.hidden,
+      (module, role) => MM.showModule(module, role.duration, () => {}, {
+        lockString,
+        animate: role.animation,
+      }),
+    )
 
     Log.log('[SCENE] Scene transition starts:', scene.name)
     if (!await exitAll() || !isCurrentTransition()) return {
@@ -145,15 +153,9 @@ class Scenes {
       index: this.#index,
       message: 'Scene transition superseded',
     }
-    this.#updateCallback()
+    await this.#onChange()
     Log.log('[SCENE] Scene will live:', scene.name, scene.life)
-    if (!isNaN(scene.life) && scene.life > 0) {
-      this.#timerStarted = new Date(Date.now())
-      this.#timer = setTimeout(() => {
-        clearTimeout(this.#timer)
-        this.next()
-      }, scene.life)
-    }
+    this.#scheduleNext(scene.life)
     return {
       status: true,
       currentScene: scene,
@@ -171,11 +173,9 @@ class Scenes {
       index: null,
     }
     const life = scene.life
-    const elapsed = this.#timerStarted ? Date.now() - this.#timerStarted.getTime() : 0
+    const elapsed = this.#timerStarted ? Date.now() - this.#timerStarted : 0
     this.#pausedRemaining = Math.max(0, life - elapsed)
-    clearTimeout(this.#timer)
-    this.#timer = null
-    this.#timerStarted = null
+    this.#clearTimer()
     let result = {
       message: 'Scene Paused',
       status: true,
@@ -195,12 +195,7 @@ class Scenes {
       index: null,
     }
     if (this.#pausedRemaining > 0) {
-      this.#timerStarted = new Date(Date.now())
-      clearTimeout(this.#timer)
-      this.#timer = setTimeout(() => {
-        clearTimeout(this.#timer)
-        this.next()
-      }, this.#pausedRemaining)
+      this.#scheduleNext(this.#pausedRemaining)
     }
     let result = {
       message: 'Scene Resumed',

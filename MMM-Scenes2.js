@@ -105,11 +105,10 @@ Module.register('MMM-Scenes2', {
             options: {
               lockString: this.config.lockString,
             },
-            updator: () => {
+            onChange: async () => {
               this.updateDom(0)
-              this.scenario.current().then((result) => {
-                this.sendNotification('SCENES_CHANGED', result)
-              })
+              const result = await this.scenario.current()
+              this.sendNotification('SCENES_CHANGED', result)
             },
           })
           resolve()
@@ -201,26 +200,19 @@ Module.register('MMM-Scenes2', {
     const userFunc = (typeof payload?.callback === 'function') ? payload.callback : () => { }
 
     if (!this.scenario) return userFunc(notyet)
-    if (command === 'SCENES_PLAY') {
-      return this.scenario.play((payload.scene || payload.scene === 0) ? payload.scene : null).then(userFunc)
-    }
-    if (command === 'SCENES_NEXT') {
-      return this.scenario.next().then(userFunc)
-    }
-    if (command === 'SCENES_PREV') {
-      return this.scenario.previous().then(userFunc)
-    }
-    if (command === 'SCENES_PAUSE') {
-      return this.scenario.pause().then(userFunc)
-    }
-    if (command === 'SCENES_RESUME') {
-      return this.scenario.resume().then(userFunc)
-    }
-    if (command === 'SCENES_CURRENT') {
-      return this.scenario.current().then(userFunc)
-    }
 
-    return userFunc({ ...notyet, ...{ message: 'Invalid command' } })
+    const commandActions = {
+      SCENES_PLAY: () => this.scenario.play(payload?.scene ?? null),
+      SCENES_NEXT: () => this.scenario.next(),
+      SCENES_PREV: () => this.scenario.previous(),
+      SCENES_PAUSE: () => this.scenario.pause(),
+      SCENES_RESUME: () => this.scenario.resume(),
+      SCENES_CURRENT: () => this.scenario.current(),
+    }
+    const action = commandActions[command]
+    if (!action) return userFunc({ ...notyet, message: 'Invalid command' })
+
+    return action().then(userFunc)
   },
 
 })
