@@ -8,6 +8,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "prepare": "simple-git-hooks || true",
+    "release": "commit-and-tag-version",
     "test": "node --run test:unit && node --run lint",
     "test:unit": "node --test tests/unit/*.test.mjs"
   },
@@ -35,9 +36,13 @@
     "@eslint/js": "^10.0.1",
     "@eslint/markdown": "^8.0.3",
     "@stylistic/eslint-plugin": "^5.10.0",
+    "commit-and-tag-version": "^13.2.0",
     "eslint": "^10.10.0",
     "globals": "^17.12.0",
     "lint-staged": "^17.5.1",
     "simple-git-hooks": "^2.14.0"
+  },
+  "allowScripts": {
+    "simple-git-hooks@2.14.0": true
   }
 }
