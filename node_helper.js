@@ -6,7 +6,7 @@ module.exports = NodeHelper.create({
     this.expressApp.get('/scenes/:action', (req, res) => {
       const action = req?.params?.action || null
       if (!action) {
-        res.status(400).send({ message: 'Invalid request'})
+        res.status(400).send({ message: 'Invalid request' })
         return
       }
       Log.log(`[SCENES] Received request: ${action}`)
@@ -29,5 +29,5 @@ module.exports = NodeHelper.create({
 
   socketNotificationReceived: function (notification, payload) {
     this.sendSocketNotification(notification, payload) // just for check
-  }
+  },
 })

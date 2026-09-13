@@ -22,53 +22,54 @@ Module.register('MMM-Scenes2', {
       animation: 'fadeIn',
       duration: 1000,
       gap: 100,
-    }
+    },
   },
 
   getStyles: function () {
-    return [ 'MMM-Scenes2.css' ]
+    return ['MMM-Scenes2.css']
   },
 
   getCommands: function (commander) {
     commander.add({
       command: 'scenes',
-      description: "Play next|prev|pause|resume|info or name:str|index:number\nTry `/scene next` or `/scene index:0`.",
+      description: 'Play next|prev|pause|resume|info or name:str|index:number\nTry `/scene next` or `/scene index:0`.',
       callback: 'command_scene',
-      args_pattern : [/info|next|prev|pause|resume|play/, /name:(\w+)/, /index:(\d+)/],
-      args_mapping : ["command", "scenename", "sceneindex"]
+      args_pattern: [/info|next|prev|pause|resume|play/, /name:(\w+)/, /index:(\d+)/],
+      args_mapping: ['command', 'scenename', 'sceneindex'],
     })
   },
 
   command_scene: function (command, handler) {
     const commandMap = {
-      "info": "SCENES_CURRENT",
-      "next": "SCENES_NEXT",
-      "prev": "SCENES_PREV",
-      "pause": "SCENES_PAUSE",
-      "resume": "SCENES_RESUME",
+      info: 'SCENES_CURRENT',
+      next: 'SCENES_NEXT',
+      prev: 'SCENES_PREV',
+      pause: 'SCENES_PAUSE',
+      resume: 'SCENES_RESUME',
     }
 
-    const tCommand = handler.args[ 'command' ] || null
-    const commandName = commandMap[ tCommand ] || null
+    const tCommand = handler.args['command'] || null
+    const commandName = commandMap[tCommand] || null
     if (tCommand && commandName) {
       this.command(commandName, {
         callback: (result) => {
-          handler.reply("TEXT", `Scene command [${tCommand}] : ${result.currentScene.name}`)
-        }
+          handler.reply('TEXT', `Scene command [${tCommand}] : ${result.currentScene.name}`)
+        },
       })
       return
     }
 
-    const id = handler.args?.[ 'scenename' ]?.[ 1 ] || handler.args?.[ 'sceneindex' ]?.[ 1 ]
+    const id = handler.args?.['scenename']?.[1] || handler.args?.['sceneindex']?.[1]
     if (id || id >= 0) {
       this.command('SCENES_PLAY', {
         scene: id,
         callback: (result) => {
-          handler.reply("TEXT", "Playing scene.\nScene name: " + result.currentScene.name)
-        }
+          handler.reply('TEXT', 'Playing scene.\nScene name: ' + result.currentScene.name)
+        },
       })
-    } else {
-      handler.reply("TEXT", "Invalid scene.")
+    }
+    else {
+      handler.reply('TEXT', 'Invalid scene.')
     }
     return
   },
@@ -101,11 +102,12 @@ Module.register('MMM-Scenes2', {
             updator: () => {
               this.updateDom(0)
               this.sendNotification('SCENES_CHANGED', this.scenario.current())
-            }
+            },
           })
           resolve()
         })
-      } catch (e) {
+      }
+      catch (e) {
         reject(e)
       }
     })
@@ -148,10 +150,11 @@ Module.register('MMM-Scenes2', {
       }
       if (index === i) {
         d.classList.add('active')
-        d.innerHTML = active[ i ]
-      } else {
+        d.innerHTML = active[i]
+      }
+      else {
         d.classList.add('inactive')
-        d.innerHTML = inactive[ i ]
+        d.innerHTML = inactive[i]
       }
       dom.appendChild(d)
     }
@@ -185,7 +188,7 @@ Module.register('MMM-Scenes2', {
       status: false,
       index: null,
       currentScene: null,
-      message: 'Not ready yet.'
+      message: 'Not ready yet.',
     }
     const userFunc = (typeof payload?.callback === 'function') ? payload.callback : () => { }
 
@@ -211,6 +214,5 @@ Module.register('MMM-Scenes2', {
 
     return userFunc({ ...notyet, ...{ message: 'Invalid command' } })
   },
-
 
 })

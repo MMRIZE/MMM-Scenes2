@@ -1,7 +1,6 @@
 /* global Log MM */
 
-
-function asleep (ms) {
+function asleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
@@ -62,7 +61,7 @@ class Scenes {
   get indicators() {
     return {
       active: this.#scenario.map(scene => scene.activeIndicator),
-      inactive: this.#scenario.map(scene => scene.inactiveIndicator)
+      inactive: this.#scenario.map(scene => scene.inactiveIndicator),
     }
   }
 
@@ -83,11 +82,11 @@ class Scenes {
       status: false,
       currentScene: null,
       index: null,
-      message: "Scene not found"
+      message: 'Scene not found',
     }
     const lockString = this.#options.lockString
     const sceneIndex = this.#findSceneIndex(id) ?? this.#index
-    const scene = this.#scenario[ sceneIndex ]
+    const scene = this.#scenario[sceneIndex]
     if (!scene) return result
     this.#index = sceneIndex
     this.#pausedRemaining = 0
@@ -122,11 +121,11 @@ class Scenes {
       return true
     }
 
-    Log.log("[SCENE] Scene transition starts:", scene.name)
+    Log.log('[SCENE] Scene transition starts:', scene.name)
     await exitAll()
     this.#updateCallback()
     await enterAll()
-    Log.log("[SCENE] Scene will live:", scene.name, scene.life)
+    Log.log('[SCENE] Scene will live:', scene.name, scene.life)
     if (!isNaN(scene.life) && scene.life > 0) {
       clearTimeout(this.#timer)
       this.#timer = null
@@ -140,20 +139,20 @@ class Scenes {
       status: true,
       currentScene: scene,
       index: sceneIndex,
-      message: "Scene Played"
+      message: 'Scene Played',
     }
   }
 
   async pause() {
-    const life = this.#scenario[ this.#index ].life
+    const life = this.#scenario[this.#index].life
     this.#pausedRemaining = life - ((this.#timerStarted) ? this.#timerStarted - new Date(Date.now()) : 0)
     clearTimeout(this.#timer)
     this.#timer = null
     this.#timerStarted = null
     let result = {
-      message: "Scene Paused",
+      message: 'Scene Paused',
       status: true,
-      currentScene: this.#scenario[ this.#index ],
+      currentScene: this.#scenario[this.#index],
       index: this.#index,
     }
     Log.log(result, `Remaining: ${this.#pausedRemaining}`)
@@ -170,9 +169,9 @@ class Scenes {
       }, this.#pausedRemaining)
     }
     let result = {
-      message: "Scene Resumed",
+      message: 'Scene Resumed',
       status: true,
-      currentScene: this.#scenario[ this.#index ],
+      currentScene: this.#scenario[this.#index],
       index: this.#index,
     }
     Log.log(result, `Resumed: ${this.#pausedRemaining}`)
@@ -185,18 +184,18 @@ class Scenes {
       status: false,
       currentScene: null,
       index: this.#index,
-      message: "Something wrong. Invalid index:" + this.#index 
+      message: 'Something wrong. Invalid index:' + this.#index,
     }
-    const param = { scene: {...scene}, scenario: [...this.#scenario] }
+    const param = { scene: { ...scene }, scenario: [...this.#scenario] }
     const sn = (typeof scene.next === 'function') ? scene.next(param) : scene.next
-    const nextIndex = (sn === false) 
-      ? false 
-      : (sn === 0) 
-        ? 0 
-        : (sn) 
-          ? this.#findSceneIndex(sn) 
-          : ((this.#index + 1) >= this.#scenario.length ? 0 : this.#index + 1)
-    
+    const nextIndex = (sn === false)
+      ? false
+      : (sn === 0)
+          ? 0
+          : (sn)
+              ? this.#findSceneIndex(sn)
+              : ((this.#index + 1) >= this.#scenario.length ? 0 : this.#index + 1)
+
     if (nextIndex === false) return await this.current()
 
     this.#index = nextIndex
@@ -209,17 +208,17 @@ class Scenes {
       status: false,
       currentScene: null,
       index: this.#index,
-      message: "Something wrong. Invalid index:" + this.#index 
+      message: 'Something wrong. Invalid index:' + this.#index,
     }
-    const param = { scene: {...scene}, scenario: [...this.#scenario] }
+    const param = { scene: { ...scene }, scenario: [...this.#scenario] }
     const sp = (typeof scene.previous === 'function') ? scene.previous(param) : scene.previous
     const prevIndex = (sp === false)
       ? false
-      : (sp === 0) 
-        ? 0 
-        : (sp) 
-          ? this.#findSceneIndex(sp) 
-          : ((this.#index - 1) < 0 ? this.#scenario.length - 1 : this.#index - 1)
+      : (sp === 0)
+          ? 0
+          : (sp)
+              ? this.#findSceneIndex(sp)
+              : ((this.#index - 1) < 0 ? this.#scenario.length - 1 : this.#index - 1)
 
     if (prevIndex === false) return await this.current()
 
@@ -230,17 +229,16 @@ class Scenes {
   async current() {
     return {
       status: true,
-      currentScene: this.#scenario[ this.#index ],
+      currentScene: this.#scenario[this.#index],
       index: this.#index,
-      message: "Current Scene"
+      message: 'Current Scene',
     }
   }
 
   getScene(id) {
-    return this.#scenario.find(scene => scene.name === id) || this.#scenario[ id ] || null
+    return this.#scenario.find(scene => scene.name === id) || this.#scenario[id] || null
   }
 }
-
 
 Log.log('[Scenes]: Library loaded')
 export { Scenes }

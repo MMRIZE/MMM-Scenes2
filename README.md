@@ -271,7 +271,7 @@ When scenes are changed, this notification will be emitted.
 
 ### WebAPI Endpoint
 You can access MM URL to control this module from outside of MM. e.g.) IFTTT.
-```
+```text
 http://magicmirror.domain/scenes/pause
 http://magicmirror.domain/scenes/resume
 http://magicmirror.domain/scenes/next
