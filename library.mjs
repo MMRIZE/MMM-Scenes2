@@ -210,7 +210,7 @@ class Scenes {
     return result
   }
 
-  async next() {
+  async #move(direction) {
     const scene = this.getScene(this.#index)
     if (!scene) return {
       status: false,
@@ -219,17 +219,21 @@ class Scenes {
       message: 'Something wrong. Invalid index:' + this.#index,
     }
     const param = { scene: { ...scene }, scenario: [...this.#scenario] }
-    const sn = (typeof scene.next === 'function') ? scene.next(param) : scene.next
-    const nextIndex = (sn === false)
+    const target = (typeof scene[direction] === 'function')
+      ? scene[direction](param)
+      : scene[direction]
+    const targetIndex = (target === false)
       ? false
-      : (sn === 0)
+      : (target === 0)
           ? 0
-          : (sn)
-              ? this.#findSceneIndex(sn)
-              : ((this.#index + 1) >= this.#scenario.length ? 0 : this.#index + 1)
+          : (target)
+              ? this.#findSceneIndex(target)
+              : (direction === 'next')
+                  ? ((this.#index + 1) >= this.#scenario.length ? 0 : this.#index + 1)
+                  : ((this.#index - 1) < 0 ? this.#scenario.length - 1 : this.#index - 1)
 
-    if (nextIndex === false) return await this.current()
-    if (nextIndex === null) {
+    if (targetIndex === false) return await this.current()
+    if (targetIndex === null) {
       return {
         status: false,
         currentScene: scene,
@@ -238,40 +242,16 @@ class Scenes {
       }
     }
 
-    this.#index = nextIndex
+    this.#index = targetIndex
     return await this.play(this.#index)
   }
 
+  async next() {
+    return await this.#move('next')
+  }
+
   async previous() {
-    const scene = this.getScene(this.#index)
-    if (!scene) return {
-      status: false,
-      currentScene: null,
-      index: this.#index,
-      message: 'Something wrong. Invalid index:' + this.#index,
-    }
-    const param = { scene: { ...scene }, scenario: [...this.#scenario] }
-    const sp = (typeof scene.previous === 'function') ? scene.previous(param) : scene.previous
-    const prevIndex = (sp === false)
-      ? false
-      : (sp === 0)
-          ? 0
-          : (sp)
-              ? this.#findSceneIndex(sp)
-              : ((this.#index - 1) < 0 ? this.#scenario.length - 1 : this.#index - 1)
-
-    if (prevIndex === false) return await this.current()
-    if (prevIndex === null) {
-      return {
-        status: false,
-        currentScene: scene,
-        index: this.#index,
-        message: 'Target scene not found',
-      }
-    }
-
-    this.#index = prevIndex
-    return await this.play(this.#index)
+    return await this.#move('previous')
   }
 
   command(command, payload = {}) {
