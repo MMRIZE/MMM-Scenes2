@@ -1,6 +1,6 @@
 {
   "name": "mmm-scenes2",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Animated, role-based scene transitions for MagicMirror².",
   "main": "MMM-Scenes2.js",
   "scripts": {
