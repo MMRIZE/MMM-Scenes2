@@ -9,7 +9,7 @@ module.exports = NodeHelper.create({
         res.status(400).send({ message: 'Invalid request' })
         return
       }
-      Log.log(`[SCENES] Received request: ${action}`)
+      Log.log(`Received request: ${action}`)
       switch (action) {
         case 'next':
         case 'prev':
