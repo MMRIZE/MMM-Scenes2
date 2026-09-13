@@ -4,6 +4,22 @@ function delay(ms) {
   return new Promise(resolve => globalThis.setTimeout(resolve, ms))
 }
 
+/**
+ * Convert shorthand role names to role objects and apply default settings.
+ *
+ * @param {Array<string|Object>} roles Scene roles to normalize.
+ * @param {Object} roleDefaults Default settings for each role.
+ * @returns {Array<Object>} Normalized role objects.
+ */
+function normalizeRoles(roles, roleDefaults) {
+  return (roles || []).map((role) => {
+    if (typeof role === 'string') {
+      return { role, ...roleDefaults }
+    }
+    return { ...roleDefaults, ...role }
+  })
+}
+
 class Scenes {
   #scenario = []
   #options = {}
@@ -18,31 +34,8 @@ class Scenes {
     this.#onChange = onChange || updator || this.#onChange
     this.#options = options
     this.#scenario = scenario.map((scene, index) => {
-      const enter = (scene.enter || []).map((role) => {
-        if (typeof role === 'string') {
-          return {
-            role,
-            ...defaults.defaultEnter,
-          }
-        }
-        return {
-          ...defaults.defaultEnter,
-          ...role,
-        }
-      })
-
-      const exit = (scene.exit || []).map((role) => {
-        if (typeof role === 'string') {
-          return {
-            role,
-            ...defaults.defaultExit,
-          }
-        }
-        return {
-          ...defaults.defaultExit,
-          ...role,
-        }
-      })
+      const enter = normalizeRoles(scene.enter, defaults.defaultEnter)
+      const exit = normalizeRoles(scene.exit, defaults.defaultExit)
       return {
         name: scene.name || `scene_${index + 1}`,
         activeIndicator: String(scene.activeIndicator || defaults.activeIndicator || index),
