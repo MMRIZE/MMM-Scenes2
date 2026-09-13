@@ -163,7 +163,14 @@ class Scenes {
   }
 
   async pause() {
-    const life = this.#scenario[this.#index].life
+    const scene = this.#scenario[this.#index]
+    if (!scene) return {
+      message: 'No current scene',
+      status: false,
+      currentScene: null,
+      index: null,
+    }
+    const life = scene.life
     const elapsed = this.#timerStarted ? Date.now() - this.#timerStarted.getTime() : 0
     this.#pausedRemaining = Math.max(0, life - elapsed)
     clearTimeout(this.#timer)
@@ -180,6 +187,13 @@ class Scenes {
   }
 
   async resume() {
+    const scene = this.#scenario[this.#index]
+    if (!scene) return {
+      message: 'No current scene',
+      status: false,
+      currentScene: null,
+      index: null,
+    }
     if (this.#pausedRemaining > 0) {
       this.#timerStarted = new Date(Date.now())
       clearTimeout(this.#timer)
@@ -263,9 +277,16 @@ class Scenes {
   }
 
   async current() {
+    const scene = this.#scenario[this.#index]
+    if (!scene) return {
+      status: false,
+      currentScene: null,
+      index: null,
+      message: 'No current scene',
+    }
     return {
       status: true,
-      currentScene: this.#scenario[this.#index],
+      currentScene: scene,
       index: this.#index,
       message: 'Current Scene',
     }

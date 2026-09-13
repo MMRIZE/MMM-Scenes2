@@ -193,3 +193,13 @@ test('supersedes a transition when another scene starts', async () => {
   assert.equal((await scenes.current()).currentScene.name, 'second')
   assert.equal(updates, 1)
 })
+
+test('handles an empty scenario without throwing', async () => {
+  const scenes = new Scenes({})
+
+  for (const result of [await scenes.pause(), await scenes.resume(), await scenes.current()]) {
+    assert.equal(result.status, false)
+    assert.equal(result.message, 'No current scene')
+    assert.equal(result.currentScene, null)
+  }
+})
