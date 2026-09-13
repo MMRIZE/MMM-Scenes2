@@ -455,16 +455,11 @@ One more thing: You can change the scene by clicking/touching the indicator if y
 - If the `life` of a scene is set as `0`, that scene will not be forwarded to the next scene. You can use this feature to make control looping or some hidden scenes for specific purposes.
 - RPI3 or older/weaker SBC doesn't have enough power to handle the animation. In that case, use animation default or avoid serious effects.
 
-## History
+## Changelog
 
-### 1.1.0 (2024-08-09)
-- `next` / `previous` for branching scenario (even on-fly-time)
-- Code cleaning
+See [CHANGELOG.md](./CHANGELOG.md) for the release history.
 
-### 1.0.0 (2023-10-05)
-- Released
-
-### Author
+## Author
 - Seongnoh Yi (eouia0819@gmail.com)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y56IFLK)
