@@ -4,6 +4,7 @@
   "description": "The successor of MMM-Scnese since MM 2.25",
   "main": "MMM-Scenes2.js",
   "scripts": {
+    "demo": "cd ../../ && MM_CONFIG_FILE=modules/MMM-Scenes2/demo.config.js node --run start:dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
