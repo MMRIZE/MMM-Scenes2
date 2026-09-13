@@ -13,7 +13,7 @@ class Scenes {
   #pausedRemaining = 0
   #transitionId = 0
   #updateCallback = () => { }
-  constructor({ scenario = [], defaults = {}, options = {}, updator = () => { } }) {
+  constructor({ scenario = [], defaults = {}, options = {}, updator = () => { } } = {}) {
     this.#updateCallback = updator
     this.#options = options
     this.#scenario = scenario.map((scene, index) => {
